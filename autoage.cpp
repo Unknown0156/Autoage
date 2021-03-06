@@ -26,7 +26,8 @@ Autoage::Autoage(QWidget *parent)
 
 Autoage::~Autoage()
 {
-    delete ui;
+
+
     delete player;
     delete target;
 }
