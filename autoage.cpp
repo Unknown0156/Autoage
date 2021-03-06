@@ -28,7 +28,7 @@ Autoage::~Autoage()
 {
 
 
-    delete player;
+
     delete target;
 }
 
