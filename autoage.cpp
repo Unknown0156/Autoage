@@ -65,7 +65,7 @@ void Autoage::userPrint()//вывод данных в ui
     ui->pSin->setText("Sin: "+QString::number(player->sin()));
     ui->pAngle->setText("Angle: "+QString::number(player->angle()));
 
-    //Таргет
+    //Таргет хуй
     ui->tName->setText(target->name());
     ui->tHpBar->setMaximum(target->maxHp());
     ui->tHpBar->setValue(target->hp());
