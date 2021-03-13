@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include "constants.h"
+#include "functions.h"
 #include "extptr.h"
 #include "target.h"
 
@@ -27,16 +28,16 @@ public:
     Player();
     ~Player();
 
-    QString nick(){return *m_nick;}
-    int hp(){return *m_hp;}
-    int maxHp(){return *m_maxHp;}
-    int mp();
-    int maxMp();
-    float x(){return *m_x;}
-    float y(){return *m_y;}
-    float z(){return *m_z;}
-    float sin(){return *m_sin;}
-    float cos(){return *m_cos;}
+    QString nick() const {return *m_nick;}
+    int hp() const {return *m_hp;}
+    int maxHp() const {return *m_maxHp;}
+    int mp(); //УКАЗАТЕЛИ МАНЫ
+    int maxMp(); //УКАЗАТЕЛИ МАНЫ
+    float x() const {return *m_x;}
+    float y() const {return *m_y;}
+    float z() const {return *m_z;}
+    float sin() const {return *m_sin;}
+    float cos() const {return *m_cos;}
     float angle();
     PStatus status() const {return m_status;}
 
@@ -46,7 +47,6 @@ public:
     void moveTo(float toX, float toY, float dist=MOVE_TO_POINT_PRECISION);//движение к точке координат
     void moveTo(Target *tar, float dist=MOVE_TO_TARGET_PRECISION);//движение до таргета
     void kill(Target *tar);//убить таргет
-    void drainHp(Target *tar); //высосать хп
     void loot(Target *tar);//залутать таргет
 
 signals:

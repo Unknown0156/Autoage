@@ -4,11 +4,15 @@
 #include <windows.h>
 
 #include <QMainWindow>
+#include <QVector>
 
 #include "constants.h"
 #include "functions.h"
 #include "player.h"
 #include "target.h"
+#include "mob.h"
+#include "radar.h"
+#include "mobslist.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Autoage; }
@@ -22,8 +26,12 @@ public:
     Autoage(QWidget *parent = nullptr);
     ~Autoage();
 
-    void timerEvent(QTimerEvent *);
-    void paintEvent(QPaintEvent *);
+    void timerEvent(QTimerEvent *e);
+    void paintEvent(QPaintEvent *e);
+    void closeEvent(QCloseEvent *e);
+
+    void mobslistSH();
+    void radarSH();
 
     void userPrint();
     void start();
@@ -31,12 +39,14 @@ public:
 
     void moveTo();
 
-
 private:
     Ui::Autoage *ui;
-    int timerId; //таймер главного окна
+    Radar *radar=nullptr;
+    Mobslist *mobslist=nullptr;
+    int timerId=0; //таймер главного окна
     Player *player;
     Target *target;
+    QVector <Mob*> mobs;
     bool botStarted=false;
 };
 #endif // AUTOAGE_H

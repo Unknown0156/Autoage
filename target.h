@@ -12,11 +12,11 @@ public:
     ~Target();
 
     QString name();
-    int hp(){return *m_hp;}
-    int maxHp(){return *m_maxHp;}
-    float x(){return *m_x;}
-    float y(){return *m_y;}
-    float z(){return *m_z;}
+    int hp() const {return *m_hp;}
+    int maxHp() const {return *m_maxHp;}
+    float x() const {return *m_x;}
+    float y() const {return *m_y;}
+    float z() const {return *m_z;}
 
 private:
     ExtPtr<QString> m_name;

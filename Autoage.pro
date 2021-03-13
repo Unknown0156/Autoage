@@ -13,7 +13,10 @@ SOURCES += \
     functions.cpp \
     main.cpp \
     autoage.cpp \
+    mob.cpp \
+    mobslist.cpp \
     player.cpp \
+    radar.cpp \
     target.cpp
 
 HEADERS += \
@@ -21,11 +24,16 @@ HEADERS += \
     constants.h \
     extptr.h \
     functions.h \
+    mob.h \
+    mobslist.h \
     player.h \
+    radar.h \
     target.h
 
 FORMS += \
-    autoage.ui
+    autoage.ui \
+    mobslist.ui \
+    radar.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -3,7 +3,6 @@
 #include <QCoreApplication>
 
 #include "player.h"
-#include "functions.h"
 
 Player::Player()
     :m_nick("playerNick"),m_hp("playerHP"),m_maxHp("playerMaxHP"),m_mp("playerMP"),m_maxMp("playerMaxMP"),m_x("playerX"),m_y("playerY"),m_z("playerZ")
@@ -168,20 +167,12 @@ void Player::kill(Target *tar)
     keyDown('3');
     while (tar->hp()>0){//ЦИКЛ ВАЙЛ!!!
         Sleep(getRandomNumber(50,70));
-        this->moveTo(tar, MOVE_TO_TARGET_PRECISION+5.0f);//добежать до таргета
-        setStatus(PStatus::fighting);
+        //this->moveTo(tar, MOVE_TO_TARGET_PRECISION+5.0f);//добежать до таргета
+        //setStatus(PStatus::fighting);
         QCoreApplication::processEvents();
     }
     setStatus(PStatus::waiting);
     keyUp('3');
-}
-
-void Player::drainHp(Target *tar)
-{
-    float hpProc=this->hp()/this->maxHp()*100;
-    if(hpProc<70.0){
-
-    }
 }
 
 void Player::loot(Target *tar)

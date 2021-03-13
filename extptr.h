@@ -16,48 +16,57 @@ template <class T>//тип данных по указателю
 class ExtPtr
 {
 public:
-    ExtPtr(const QString name); //имя указателя в ини файле offsets
+    ExtPtr();
+    ExtPtr(const QString name); //инициализация по имени указателя в ини файле offsets
+    ExtPtr(uintptr_t base, const QString name);//иницализация по указателю+оффсет из ини файла
     ~ExtPtr();
 
-    uintptr_t getPtr() const {return this->m_ptr;} //возврат указателя
-    QString getName() const {return this->m_name;} //возврат имени указателя
-
-    const T &operator*()//чтение памяти по указателю
-    {
-        if (!ReadProcessMemory(hProc, (BYTE*)m_ptr, &m_value, sizeof(m_value), nullptr))
-            m_value = NULL;
-        return m_value;
+    QString getName() const {return m_name;} //возврат имени указателя
+    uintptr_t operator&() const {return m_ptr;}//возврат указателя
+    T operator*() const{//чтение памяти по указателю
+        T value;
+        if (!ReadProcessMemory(hProc, (BYTE*)m_ptr, &value, sizeof(value), nullptr))//если не может прочитать
+            value = NULL;
+        return value;
     }
 
 private:
     uintptr_t m_ptr=0; //указатель
     QString m_name=""; //имя указателя
-    T m_value; //значение по указателю
-
 };
 
-template <class T>
+template<class T>
+ExtPtr<T>::ExtPtr()
+{
+
+}
+
+template<class T>
 ExtPtr<T>::ExtPtr(const QString name): m_name(name)
 {
-    m_ptr=modBase;
     QString offstr=offsets->value(name).toString();//читает строку оффсетов из ини файла
-    QStringList offlist=offstr.split(" ",QString::SkipEmptyParts);//разделяет строку оффсетов на части
-    foreach (QString offnum, offlist) {//итерация по оффсетам
-        bool ok;
-        m_ptr+=offnum.toUInt(&ok, 16);//прибавляет 16-тиричный оффсет к указателю
-        if (offnum==offlist.last())//если оффсет последний - выходит
-            break;
+    QStringList offlist=offstr.split(" ");//разделяет строку оффсетов на части
+    bool ok;
+    m_ptr=modBase+offlist.at(0).toUInt(&ok,16);//адрес модуля + первый оффсет
+    for(int i=1; i<offlist.size();i++) {//итерация по оффсетам до предпоследнего
         if (!ReadProcessMemory(hProc, (BYTE*)m_ptr, &m_ptr, sizeof(m_ptr), 0)){//читает значение по указателю m_ptr в m_ptr
             m_ptr = 0;//если не может прочитать
             break; //выходит из цикла по оффсетам
         }
+        m_ptr+=offlist.at(i).toUInt(&ok, 16);//прибавляет 16-тиричный оффсет к указателю
     }
-    if (m_ptr)
-        m_value = **this;//сохраняем значение в m_value
+}
+
+template<class T>
+ExtPtr<T>::ExtPtr(uintptr_t base, const QString name): m_name(name)
+{
+    QString offstr=offsets->value(name).toString();
+    bool ok;
+    m_ptr=base+offstr.toUInt(&ok, 16);
 }
 
 template<>
-const QString &ExtPtr<QString>::operator*(); //шаблон для строки
+QString ExtPtr<QString>::operator*() const; //шаблон для строки
 
 
 template <typename T>

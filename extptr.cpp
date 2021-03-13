@@ -1,20 +1,20 @@
 #include "extptr.h"
 
 template<>
-const QString &ExtPtr<QString>::operator*()
+QString ExtPtr<QString>::operator*() const
 {
-    m_value.clear();
+    QString value;
     uintptr_t tmpptr = m_ptr; //указатель для итерации по строке
     char valueCh=' '; //символ по указателю
     while (valueCh != 0) //чтение строки по-символьно из памяти
     {
         if (!ReadProcessMemory(hProc, (BYTE*)tmpptr, &valueCh, sizeof(valueCh), nullptr)) //чтение символа по указателю
         {
-            m_value = "invalid_name"; //если не может прочитать
+            value = "invalid_name"; //если не может прочитать
             break;
         }
-        m_value.push_back(valueCh);
+        value.push_back(valueCh);
         tmpptr++;
     }
-    return m_value;
+    return value;
 }
