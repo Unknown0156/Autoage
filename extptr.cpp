@@ -1,8 +1,7 @@
 #include "extptr.h"
 
 template<>
-QString ExtPtr<QString>::operator*() const
-{
+QString ExtPtr<QString>::operator*() const{
     QString value;
     uintptr_t tmpptr = m_ptr; //указатель для итерации по строке
     char valueCh=' '; //символ по указателю

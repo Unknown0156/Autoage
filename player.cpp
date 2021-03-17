@@ -5,8 +5,9 @@
 #include "player.h"
 
 Player::Player()
-    :m_nick("playerNick"),m_hp("playerHP"),m_maxHp("playerMaxHP"),m_mp("playerMP"),m_maxMp("playerMaxMP"),m_x("playerX"),m_y("playerY"),m_z("playerZ")
-    ,m_sin("playerSin"), m_cos("playerCos")
+    :m_nick("playerNick"), m_maxHp("playerMaxHP"), m_maxMp("playerMaxMP"), m_mp(&m_maxMp, "playerMP"),
+     m_x("playerX"), m_y(&m_x, "playerY"), m_z(&m_x, "playerZ"), m_hp(&m_x, "playerHP"),
+     m_cos("playerCos"), m_sin(&m_cos, "playerSin")
 {
     m_angle=atan2(*m_sin, *m_cos);
     m_angle=(m_angle > 0 ? m_angle : (2*M_PI + m_angle)) * 180 / M_PI;
@@ -17,17 +18,23 @@ Player::~Player()
 
 }
 
+int Player::maxMp(){//пока указатели маны глючат ВРЕМЕННО!!!
+    if (*m_maxMp==NULL){
+        m_maxMp=ExtPtr<int>("playerMaxMP");
+    }
+
+    return *m_maxMp;
+}
+
+
 int Player::mp(){//пока указатели маны глючат ВРЕМЕННО!!!
-    if (*m_mp==NULL)
-        m_mp=ExtPtr<int>("playerMP");
+    if (*m_mp==NULL){
+        m_mp=ExtPtr<int>(&m_maxMp, "playerMP");
+    }
+
     return *m_mp;
 }
 
-int Player::maxMp(){//пока указатели маны глючат ВРЕМЕННО!!!
-    if (*m_maxMp==NULL)
-        m_maxMp=ExtPtr<int>("playerMaxMP");
-    return *m_maxMp;
-}
 
 float Player::angle()
 {
@@ -83,7 +90,10 @@ void Player::moveTo(float toX, float toY, float dist)//движение к то�
                 this->turnTo(toX, toY);
             }
             Sleep(getRandomNumber(50,70));
-            cDist=this->calcDist(toX, toY);//пресчет расстояния
+            float newDist=this->calcDist(toX, toY);//пресчет расстояния
+            if(cDist==newDist)//если не двигается
+                keyDown('w');
+            cDist=newDist;
             emit sendStatus(statusStr+QString::number(cDist));//в статус бар
             QCoreApplication::processEvents();
         }
@@ -92,24 +102,27 @@ void Player::moveTo(float toX, float toY, float dist)//движение к то�
     }
 }
 
-void Player::moveTo(Target *tar, float dist)//движение к таргету
+void Player::moveTo(Mob *mob, float dist)//движение к мобу
 {
-    float cDist = this->calcDist(tar->x(), tar->y()); //текущее расстояние до цели
-    this->turnTo(tar);//поворот до цели
+    float cDist = this->calcDist(mob->x(), mob->y()); //текущее расстояние до моба
+    this->turnTo(mob);//поворот до моба
     if(cDist>dist){
-        QString statusStr="Moving to point ("+QString::number(tar->x())+";"+QString::number(tar->y())+")"+", distance=";
+        QString statusStr="Moving to point ("+QString::number(mob->x())+";"+QString::number(mob->y())+")"+", distance=";
         setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
         keyDown('w');
-        float angle, angleDif; //угол до цели и разница между углами
+        float angle, angleDif; //угол до моба и разница между углами
         while (cDist>dist){//ЦИКЛ ВАЙЛ!!!
-            angle = this->calcAngle(tar->x(), tar->y());//пересчет угла
+            angle = this->calcAngle(mob->x(), mob->y());//пересчет угла
             angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом 0-360
             angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
             if(angleDif>(TURN_PRECISION*2.0f)){//выравнивание на бегу
-                this->turnTo(tar);
+                this->turnTo(mob);
             }
             Sleep(getRandomNumber(50,70));
-            cDist=this->calcDist(tar->x(), tar->y());//пресчет расстояния
+            float newDist=this->calcDist(mob->x(), mob->y());//пресчет расстояния
+            if(cDist==newDist)//если не двигается
+                keyDown('w');
+            cDist=newDist;
             emit sendStatus(statusStr+QString::number(cDist));//в статус бар
             QCoreApplication::processEvents();
         }
@@ -139,9 +152,9 @@ void Player::turnTo(float toX, float toY)//поворот к точке коор
     }
 }
 
-void Player::turnTo(Target *tar)//поворот к таргету
+void Player::turnTo(Mob *mob)//поворот к мобу
 {
-    float angle = this->calcAngle(tar->x(), tar->y());//найти угол
+    float angle = this->calcAngle(mob->x(), mob->y());//найти угол
     float angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом
     char turnKey=' ';//кнопка поворота
     turnKey = angleDif < 180.0f ? 'a' : 'd';//если разница углов меньше 180 жмет 'a', если нет 'd'
@@ -151,7 +164,7 @@ void Player::turnTo(Target *tar)//поворот к таргету
         keyDown(turnKey); //нажимает кпопку поворота
         while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
             Sleep(getRandomNumber(50,70));
-            angle = this->calcAngle(tar->x(), tar->y());//пересчет угла
+            angle = this->calcAngle(mob->x(), mob->y());//пересчет угла
             angleDif=this->calcAngleDif(angle);//пересчет разницы углов
             QCoreApplication::processEvents();
         }

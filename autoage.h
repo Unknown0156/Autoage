@@ -9,8 +9,7 @@
 #include "constants.h"
 #include "functions.h"
 #include "player.h"
-#include "target.h"
-#include "mob.h"
+#include "mobs.h"
 #include "radar.h"
 #include "mobslist.h"
 
@@ -30,10 +29,10 @@ public:
     void paintEvent(QPaintEvent *e);
     void closeEvent(QCloseEvent *e);
 
-    void mobslistSH();
-    void radarSH();
+    void mobslistSH();//показать\скрыть окно списка мобов
+    void radarSH();//показать\скрыть окно радара
 
-    void userPrint();
+    void userPrint();//вывод данных в ui
     void start();
     void stop();
 
@@ -46,7 +45,7 @@ private:
     int timerId=0; //таймер главного окна
     Player *player;
     Target *target;
-    QVector <Mob*> mobs;
+    Mobs *mobs;
     bool botStarted=false;
 };
 #endif // AUTOAGE_H

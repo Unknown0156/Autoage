@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QCloseEvent>
 
-#include "mob.h"
+#include "mobs.h"
 
 namespace Ui {
 class Mobslist;
@@ -20,7 +20,7 @@ public:
 
     void closeEvent (QCloseEvent *e);
 
-    void userPrint(QVector<Mob*> &mobs);
+    void userPrint(const QVector<Mob*> &mobs);
 
 signals:
     void onClose(bool check);

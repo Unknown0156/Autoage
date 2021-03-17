@@ -13,22 +13,20 @@ SOURCES += \
     functions.cpp \
     main.cpp \
     autoage.cpp \
-    mob.cpp \
+    mobs.cpp \
     mobslist.cpp \
     player.cpp \
-    radar.cpp \
-    target.cpp
+    radar.cpp
 
 HEADERS += \
     autoage.h \
     constants.h \
     extptr.h \
     functions.h \
-    mob.h \
+    mobs.h \
     mobslist.h \
     player.h \
-    radar.h \
-    target.h
+    radar.h
 
 FORMS += \
     autoage.ui \
@@ -39,3 +37,13 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    TODO \
+    deadmob.png \
+    friendlymob.png \
+    mob.png \
+    offsets.ini \
+    player.png \
+    settings.ini \
+    target.png

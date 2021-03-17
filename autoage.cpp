@@ -3,12 +3,9 @@
 
 
 Autoage::Autoage(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::Autoage), player(new Player), target(new Target)
+    : QMainWindow(parent), ui(new Ui::Autoage),
+      player(new Player), target(new Target), mobs(new Mobs)
 {
-    for (int i=0;i<NUMBER_OF_MOBS ;i++ ) {
-        mobs.push_back(new Mob("mob", i));
-    }
     ui->setupUi(this);
     setFixedSize(geometry().width(), geometry().height());//фисирует размер окна
     statusBar()->showMessage("Ready");
@@ -38,14 +35,13 @@ Autoage::~Autoage()
         delete radar;
     delete player;
     delete target;
-    foreach(Mob* mob, mobs)
-        delete mob;
-    mobs.clear();
+    delete mobs;
 }
 
 void Autoage::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
+    mobs->refresh();//ВРЕМЕННО!!
     userPrint(); //вывод в ui по таймеру
 
     if(botStarted){
@@ -56,13 +52,12 @@ void Autoage::timerEvent(QTimerEvent *e)
     }
 }
 
-void Autoage::paintEvent(QPaintEvent *e)
-{
+void Autoage::paintEvent(QPaintEvent *e){
     Q_UNUSED(e);
 }
 
-void Autoage::closeEvent(QCloseEvent *e)
-{
+void Autoage::closeEvent(QCloseEvent *e){
+    Q_UNUSED(e);
     if (mobslist!=nullptr){
         mobslist->close();
     }
@@ -71,10 +66,10 @@ void Autoage::closeEvent(QCloseEvent *e)
     }
 }
 
-void Autoage::mobslistSH()
+void Autoage::mobslistSH()//показать\скрыть окно списка мобов
 {
     if (mobslist==nullptr){
-        mobslist=new Mobslist;
+        mobslist=new Mobslist();
         connect(mobslist, &Mobslist::onClose, ui->mobslist, &QAction::setChecked);
     }
     if (ui->mobslist->isChecked())
@@ -83,10 +78,10 @@ void Autoage::mobslistSH()
         mobslist->hide();
 }
 
-void Autoage::radarSH()
+void Autoage::radarSH()//показать\скрыть окно радара
 {
     if (radar==nullptr){
-        radar=new Radar;
+        radar=new Radar(nullptr, player, target, &mobs->mobs());
         radar->setStyleSheet("background-color:white;");
         connect(radar, &Radar::onClose, ui->radar, &QAction::setChecked);
     }
@@ -95,6 +90,7 @@ void Autoage::radarSH()
     else
         radar->hide();
 }
+
 
 void Autoage::userPrint()//вывод данных в ui
 {
@@ -122,7 +118,7 @@ void Autoage::userPrint()//вывод данных в ui
 
     //Мобы
     if(mobslist!=nullptr)
-        mobslist->userPrint(mobs);
+        mobslist->userPrint(mobs->allmobs());
 }
 
 void Autoage::start()
