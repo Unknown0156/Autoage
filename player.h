@@ -40,15 +40,17 @@ public:
     float cos() const {return *m_cos;}
     float sin() const {return *m_sin;}
     float angle();
+    Point &start() {return m_start;}
     PStatus status() const {return m_status;}
 
-
+    float distTo(float x, float y);
     void turnTo(float toX, float toY);//поворот к точке координат
     void turnTo(Mob *mob);//поворот к мобу
     void moveTo(float toX, float toY, float dist=MOVE_TO_POINT_PRECISION);//движение к точке координат
-    void moveTo(Mob *mob, float dist=MOVE_TO_TARGET_PRECISION);//движение до моба
+    void moveTo(Mob *mob, float dist=MOVE_TO_MOB_PRECISION);//движение до моба
     void kill(Target *tar);//убить таргет
     void loot(Target *tar);//залутать таргет
+    void heal();//похилиться
 
 signals:
     void statusChanged(const QString &status);//при изменении статуса персонажа
@@ -83,11 +85,13 @@ private:
     ExtPtr<float> m_cos;
     ExtPtr<float> m_sin;
     float m_angle;
+    Point m_start;
     PStatus m_status=PStatus::waiting;
 
-    float calcDist(float x, float y);
-    float calcAngle(float x, float y);
+    float angleTo(float x, float y);
     float calcAngleDif(float angle);
+
+    void jump();
 };
 
 #endif // PLAYER_H

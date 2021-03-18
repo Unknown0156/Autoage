@@ -1,10 +1,4 @@
-#include <random>
-#include <Windows.h>
-#include <TlHelp32.h>
-
-#include <QString>
-
-#include "constants.h"
+#include "functions.h"
 
 extern HWND hWnd;//ГЛОБАЛЬНЫЙ хэндлер окна
 
@@ -92,11 +86,15 @@ bool keyDown(char keyS) //нажатие кнопки
     case '1': return PostMessage(hWnd, WM_KEYDOWN, 0x31, MAKELPARAM(0x1, 0x2));
     case '2': return PostMessage(hWnd, WM_KEYDOWN, 0x32, MAKELPARAM(0x1, 0x3));
     case '3': return PostMessage(hWnd, WM_KEYDOWN, 0x33, MAKELPARAM(0x1, 0x4));
+    case '4': return PostMessage(hWnd, WM_KEYDOWN, 0x34, MAKELPARAM(0x1, 0x5));
+    case '5': return PostMessage(hWnd, WM_KEYDOWN, 0x35, MAKELPARAM(0x1, 0x6));
+    case '\t': return PostMessage(hWnd, WM_KEYDOWN, 0x9, MAKELPARAM(0x1, 0xF));
+    case ' ': return PostMessage(hWnd, WM_KEYDOWN, 0x20, MAKELPARAM(0x1, 0x39));
     default: return 0;//нет такой кнопки
     }
 }
 
-bool keyUp(char keyS=0) //отжатие кнопки
+bool keyUp(char keyS) //отжатие кнопки
 {
     switch (keyS)
     {
@@ -108,14 +106,28 @@ bool keyUp(char keyS=0) //отжатие кнопки
     case '1': return PostMessage(hWnd, WM_KEYUP, 0x31, MAKELPARAM(0x1, 0xC002));
     case '2': return PostMessage(hWnd, WM_KEYUP, 0x32, MAKELPARAM(0x1, 0xC003));
     case '3': return PostMessage(hWnd, WM_KEYUP, 0x33, MAKELPARAM(0x1, 0xC004));
-    default: {keyUp('w');keyUp('a');keyUp('s');keyUp('d');keyUp('1');keyUp('2');keyUp('3');return 0;}//по умолчанию отжать все кнопки
+    case '4': return PostMessage(hWnd, WM_KEYUP, 0x34, MAKELPARAM(0x1, 0xC005));
+    case '5': return PostMessage(hWnd, WM_KEYUP, 0x35, MAKELPARAM(0x1, 0xC006));
+    case '\t': return PostMessage(hWnd, WM_KEYUP, 0x9, MAKELPARAM(0x1, 0xC00F));
+    case ' ':  return PostMessage(hWnd, WM_KEYUP, 0x20, MAKELPARAM(0x1, 0xC039));
+    default: return 0;//нет такой кнопки
     }
 }
 
-int getRandomNumber(int min=INT16_MIN, int max=INT16_MAX) //генератор рандомных чисел (от, до)
+void wait(int t)
+{
+    for(;t>0;t--){
+        Sleep(1);
+        QCoreApplication::processEvents();
+    }
+}
+
+int getRandomNumber(int min, int max) //генератор рандомных чисел (от, до)
 {
     std::random_device rd; //случайное системное число (зависит от ОС)
     std::mt19937 mersenne(rd()); // инициализирует Вихрь Мерсенна случайным системным числом
     std::uniform_int_distribution <int> dist(min, max); //задаем интервал целых чисел
     return dist(mersenne); //генерирует следующее целое число в интервале с сидом из вихря
 }
+
+

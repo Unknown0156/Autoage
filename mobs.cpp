@@ -24,6 +24,14 @@ void Mob::refresh()
     m_hp=ExtPtr<int>(&m_base, name+"HP");
 }
 
+float Mob::distTo(float x, float y)
+{
+    float dX = x - *m_x; //дельта по X
+    float dY = y - *m_y; //дельта по Y
+    float dist = sqrt(dX * dX + dY * dY); //расстояние
+    return dist;
+}
+
 Mob::~Mob()
 {
 
@@ -79,3 +87,39 @@ void Mobs::refresh()//обновлние и фильтрация мобов
     }
     m_mobs.erase(m_mobs.begin());//удаляем игрока
 }
+
+Mob *Mobs::closestTo(int x, int y) const
+{
+    Mob *closest=nullptr;
+    foreach(Mob* mob, m_mobs){
+        if(closest==nullptr){
+            if(mob->enemy() && mob->hp()>0)
+                closest=mob;
+            else
+                continue;
+        }
+        if(mob->enemy() && mob->hp()>0 && mob->distTo(x, y) < closest->distTo(x,y))
+            closest=mob;
+    }
+    return closest;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

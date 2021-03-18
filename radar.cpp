@@ -7,6 +7,7 @@ Radar::Radar(QWidget *parent, Player *player, Target *target, const QVector<Mob*
     m_player(player), m_target(target), m_mobs(mobs)
 {
     ui->setupUi(this);
+    setFixedSize(this->height(), this->width());
     pImage.load(QCoreApplication::applicationDirPath()+"/"+"player.png");
     pRect=pImage.rect();
     tImage.load(QCoreApplication::applicationDirPath()+"/"+"target.png");

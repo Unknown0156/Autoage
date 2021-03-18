@@ -1,10 +1,15 @@
 #ifndef MOB_H
 #define MOB_H
+#include <cmath>
 
 #include <QString>
 
 #include "constants.h"
 #include "extptr.h"
+
+struct Point{
+    float x,y;
+};
 
 class Mob
 {
@@ -25,6 +30,7 @@ public:
 
     bool operator==(const Mob &mob){return mob.addr()==this->addr();}
     void refresh();//пересчет указателй
+    float distTo(float x, float y);
 
 private:
 
@@ -67,7 +73,7 @@ public:
     const QVector <Mob*> &mobs() const {return m_mobs;}//возвращает ссылку на массив рабочих мобов
 
     void refresh();//обновление и фильтрация мобов
-    Mob* closest(int x, int y) const;
+    Mob *closestTo(int x, int y) const;//возврат ближайшего моба
 
 private:
     QVector <Mob*> m_allmobs;

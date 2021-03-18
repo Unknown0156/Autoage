@@ -4,7 +4,7 @@
 
 Autoage::Autoage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Autoage),
-      player(new Player), target(new Target), mobs(new Mobs)
+      player(new Player), target(new Target), mobs(new Mobs), bot(new QTimer(this))
 {
     ui->setupUi(this);
     setFixedSize(geometry().width(), geometry().height());//фисирует размер окна
@@ -23,6 +23,7 @@ Autoage::Autoage(QWidget *parent)
     connect(ui->mobslist, &QAction::triggered, this, &Autoage::mobslistSH);
     connect(ui->start, &QPushButton::clicked, this, &Autoage::start);
     connect(ui->stop, &QPushButton::clicked, this, &Autoage::stop);
+    connect(bot,&QTimer::timeout, this, &Autoage::botting);
     connect(ui->moveTo, &QPushButton::clicked, this, &Autoage::moveTo);
 }
 
@@ -41,15 +42,10 @@ Autoage::~Autoage()
 void Autoage::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
-    mobs->refresh();//ВРЕМЕННО!!
+    mobs->refresh();//ВРМЕННО
     userPrint(); //вывод в ui по таймеру
 
-    if(botStarted){
-        if (target->hp()==target->maxHp() && player->status()==PStatus::waiting){
-             player->kill(target);
-             player->loot(target);
-        }
-    }
+
 }
 
 void Autoage::paintEvent(QPaintEvent *e){
@@ -107,6 +103,8 @@ void Autoage::userPrint()//вывод данных в ui
     ui->pCos->setText("Cos: "+QString::number(player->cos()));
     ui->pSin->setText("Sin: "+QString::number(player->sin()));
     ui->pAngle->setText("Angle: "+QString::number(player->angle()));
+    ui->label_3->setText("Dist from start point: "+QString::number(player->distTo(player->start().x, player->start().y)));
+
 
     //Таргет
     ui->tName->setText(target->name());
@@ -125,6 +123,8 @@ void Autoage::start()
 {
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
+    player->start()={player->x(), player->y()};
+    bot->start(M_TIMER_DELAY);
     botStarted=true;
 }
 
@@ -132,8 +132,8 @@ void Autoage::stop()
 {
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
+    bot->stop();
     botStarted=false;
-    keyUp();
 }
 
 void Autoage::moveTo()

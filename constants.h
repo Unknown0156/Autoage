@@ -12,5 +12,6 @@ const int MOB_BASE = 969501312; //значение vtable моба
 
 const float TURN_PRECISION = 6.0f; //точность поворота
 const float MOVE_TO_POINT_PRECISION = 2.0f; //точность движения к точке
-const float MOVE_TO_TARGET_PRECISION = 20.0f; //точность движения к таргету
+const float MOVE_TO_MOB_PRECISION = 20.0f; //точность движения к таргету
+const float MAX_DIST_FROM_START=100.0f;//максимальное расстояние от начальной точки
 

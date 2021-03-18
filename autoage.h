@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include <QMainWindow>
+#include <QTimer>
 #include <QVector>
 
 #include "constants.h"
@@ -38,6 +39,29 @@ public:
 
     void moveTo();
 
+private slots:
+    void botting(){
+        if(player->status()==PStatus::waiting){
+            if(player->distTo(player->start().x, player->start().y)>MAX_DIST_FROM_START && target->hp()==0)
+                player->moveTo(player->start().x, player->start().y);
+            if (target->hp()>0){
+                player->kill(target);
+                player->loot(target);
+            }else{
+                if(((float)player->hp()/player->maxHp())<0.8f)
+                    player->heal();
+                Mob* closest=mobs->closestTo(player->x(), player->y());
+                player->moveTo(closest->x(), closest->y(), MOVE_TO_MOB_PRECISION);
+                keyDown('\t');
+                Sleep(getRandomNumber(50,70));
+                keyUp('\t');
+                Sleep(getRandomNumber(50,70));
+                if(target->hp()==0)
+                    player->moveTo(player->start().x, player->start().y);
+            }
+        }
+    }
+
 private:
     Ui::Autoage *ui;
     Radar *radar=nullptr;
@@ -47,5 +71,6 @@ private:
     Target *target;
     Mobs *mobs;
     bool botStarted=false;
+    QTimer *bot;
 };
 #endif // AUTOAGE_H
