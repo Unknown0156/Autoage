@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     const wchar_t *modName=reinterpret_cast<const wchar_t *>(qmodName.utf16()); //имя модуля
     delete settings;
     DWORD procId= getProcId(procName); //ид процесса
-    hProc = OpenProcess(PROCESS_ALL_ACCESS, 0, procId); //открывает хэгдлер процесса
+    hProc = OpenProcess(PROCESS_ALL_ACCESS, 0, procId); //открывает хэндлер процесса
     modBase = getModuleBaseAddress(procId, modName); //ищет адрес модуля в процессе
     getWindowFromProcessID(procId, hWnd); //открывает хэндлер окна
     offsets=new QSettings(QCoreApplication::applicationDirPath()+"/"+F_NAME_OFFSETS,QSettings::IniFormat); //открывает файл оффсетов

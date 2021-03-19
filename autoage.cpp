@@ -4,16 +4,16 @@
 
 Autoage::Autoage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Autoage),
-      player(new Player), target(new Target), mobs(new Mobs), bot(new QTimer(this))
+      bot(new QTimer(this)), player(new Player), target(new Target), mobs(new Mobs)
 {
     ui->setupUi(this);
-    setFixedSize(geometry().width(), geometry().height());//фисирует размер окна
+    setFixedSize(geometry().width(), geometry().height());//фиксирует размер окна
     statusBar()->showMessage("Ready");
     ui->pHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара персонажа
     ui->pMpBar->setStyleSheet("QProgressBar::chunk{background-color: #2B7ED5;}");//цвет мана бара персонажа
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
-
+    m_stPos={player->x(), player->y()};//инициализация стартовой позиции
     timerId=startTimer(TIMER_DELAY);//таймер главного окна
 
     connect(player, &Player::statusChanged, ui->pStatus, &QLabel::setText);//статус персонажа в ui
@@ -88,6 +88,9 @@ void Autoage::radarSH()//показать\скрыть радар
 
 void Autoage::userPrint()//вывод данных в ui
 {
+    //Стартовая позиция
+    ui->startPos->setText("Start at ("+QString::number(m_stPos.x)+", "+QString::number(m_stPos.y)+"), dist="+QString::number(player->distTo(m_stPos.x, m_stPos.y),'f',2));
+
     //Персонаж
     QString title=QString::number(player->x(),'f',1)+" "+QString::number(player->y(),'f',1)+" "+player->nick();//заголовок окна
     setWindowTitle(title);
@@ -101,7 +104,6 @@ void Autoage::userPrint()//вывод данных в ui
     ui->pCos->setText("Cos: "+QString::number(player->cos()));
     ui->pSin->setText("Sin: "+QString::number(player->sin()));
     ui->pAngle->setText("Angle: "+QString::number(player->angle()));
-    ui->startPos->setText("Start at ("+QString::number(player->start().x)+", "+QString::number(player->start().y)+"), dist="+QString::number(player->distTo(player->start().x, player->start().y),'f',2));
 
 
     //Таргет
@@ -122,9 +124,8 @@ void Autoage::start()
 {
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
-    player->start()={player->x(), player->y()};
+    m_stPos={player->x(), player->y()};
     bot->start(TIMER_DELAY);
-    botStarted=true;
 }
 
 void Autoage::stop()
@@ -132,7 +133,6 @@ void Autoage::stop()
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
     bot->stop();
-    botStarted=false;
 }
 
 void Autoage::moveTo()

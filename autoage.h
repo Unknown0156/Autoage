@@ -4,7 +4,6 @@
 #include <windows.h>
 
 #include <QMainWindow>
-#include <QHBoxLayout>
 #include <QTimer>
 #include <QVector>
 
@@ -34,6 +33,7 @@ public:
     void mobslistSH();//показать\скрыть окно списка мобов
     void radarSH();//показать\скрыть окно радара
 
+    Point &stPos() {return m_stPos;}
     void userPrint();//вывод данных в ui
     void start();
     void stop();
@@ -42,24 +42,23 @@ public:
 
 private slots:
     void botting(){
-        if(player->status()==PStatus::waiting){
-            mobs->refresh();
-            if(player->distTo(player->start().x, player->start().y)>MAX_DIST_FROM_START && target->hp()==0)
-                player->moveTo(player->start().x, player->start().y);
-            if (target->hp()>0){
+        if(player->status()==PStatus::waiting){//если игрок ничего не делает
+            if(player->distTo(m_stPos.x, m_stPos.y)>MAX_DIST_FROM_START && target->hp()==0)//если ушел на макс удаление от старта
+                player->moveTo(m_stPos.x, m_stPos.y);//бежит на старт
+            if (target->hp()>0){//если есть цель
                 player->kill(target);
                 player->loot(target);
-            }else{
-                if(((float)player->hp()/player->maxHp())<0.8f)
+            }else{//если цели нет
+                if(((float)player->hp()/player->maxHp())<0.8f)//если персонаж продамажен
                     player->heal();
-                Mob* closest=mobs->closestTo(player->x(), player->y());
-                player->moveTo(mobs->closestTo(player->x(), player->y()));
-                keyDown('\t');
+                Mob* closest=mobs->closestTo(player->x(), player->y());//находит ближайшего моба
+                player->moveTo(closest);//двигается к ближайшему мобу
+                keyDown('\t');//таб ВРЕМЕННО
                 Sleep(getRandomNumber(50,70));
                 keyUp('\t');
                 Sleep(getRandomNumber(50,70));
-                if(target->hp()==0)
-                    player->moveTo(player->start().x, player->start().y);
+                if(target->hp()==0)//если не нашли цель ВРЕМЕННО
+                    player->moveTo(m_stPos.x, m_stPos.y);
             }
         }
     }
@@ -69,10 +68,10 @@ private:
     Radar *radar=nullptr;
     Mobslist *mobslist=nullptr;
     int timerId=0; //таймер главного окна
+    QTimer *bot;
     Player *player;
     Target *target;
     Mobs *mobs;
-    bool botStarted=false;
-    QTimer *bot;
+    Point m_stPos;
 };
 #endif // AUTOAGE_H

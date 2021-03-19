@@ -14,14 +14,13 @@ struct Point{
 class Mob
 {
 public:
-    Mob();
     Mob(const QString name, int num=NULL);//имя в файле оффсетов и номер если нужно
     ~Mob();
 
     const QString &name() const {return m_base.name();}
     int addr() const {return &m_base;}
     int base() const {return *m_base;}
-    bool enemy() const {if(*m_enemy==115) return false; else return true;}
+    int enemy() const {return *m_enemy;}
     QString type() const {return *m_type;}
     float x() const {return *m_x;}
     float y() const {return *m_y;}
@@ -29,13 +28,13 @@ public:
     int hp() const {return *m_hp;}
 
     bool operator==(const Mob &mob){return mob.addr()==this->addr();}
-    void refresh();//пересчет указателй
-    float distTo(float x, float y);
+    void refresh();//пересчет указателей
+    float distTo(float x, float y);//расстояние до
 
 private:
 
     ExtPtr<int> m_base;//базовый указатель
-    ExtPtr<int> m_enemy;//>0 враг
+    ExtPtr<int> m_enemy;//друг\враг
     ExtPtr<QString> m_type;//тип моба
     ExtPtr<float> m_x;
     ExtPtr<float> m_y;
@@ -72,8 +71,9 @@ public:
     const QVector <Mob*> &allmobs() const {return m_allmobs;}//возвращает ссылку на массив всех мобов
     const QVector <Mob*> &mobs() const {return m_mobs;}//возвращает ссылку на массив рабочих мобов
 
-    void refresh();//обновление и фильтрация мобов
-    Mob *closestTo(int x, int y) const;//возврат ближайшего моба
+    void refresh();//обновление мобов
+    void filter();//фильтрация мобов
+    Mob *closestTo(int x, int y);//возврат ближайшего моба
 
 private:
     QVector <Mob*> m_allmobs;

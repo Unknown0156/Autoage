@@ -49,7 +49,6 @@ ExtPtr<T>::ExtPtr()
 template<class T>
 ExtPtr<T>::ExtPtr(const QString name):m_name(name)//инициализация по имени указателя в ини файле offsets
 {
-    //m_name=new QString (name);
     QString offstr=offsets->value(m_name).toString();//читает строку оффсетов из ини файла
     QStringList offlist=offstr.split(" ");//разделяет строку оффсетов на части
     bool ok;
@@ -66,7 +65,6 @@ ExtPtr<T>::ExtPtr(const QString name):m_name(name)//инициализация �
 template<class T>
 ExtPtr<T>::ExtPtr(uintptr_t base, const QString name):m_name(name)//иницализация по указателю+оффсет из ини файла
 {
-    //m_name=new QString (name);
     QString offstr=offsets->value(m_name).toString();//читает строку оффсетов из ини файла
     bool ok;
     m_ptr=base+offstr.toUInt(&ok, 16);//базовый адрес+оффсет
@@ -79,8 +77,7 @@ QString ExtPtr<QString>::operator*() const; //чтение памяти по у�
 template <typename T>
 ExtPtr<T>::~ExtPtr()
 {
-    //if (m_name!=nullptr)
-    //delete m_name;
+
 }
 
 

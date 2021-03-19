@@ -11,7 +11,6 @@ Player::Player()
 {
     m_angle=atan2(*m_sin, *m_cos);
     m_angle=(m_angle > 0 ? m_angle : (2*M_PI + m_angle)) * 180 / M_PI;
-    m_start={*m_x, *m_y};
 }
 
 Player::~Player()
@@ -73,7 +72,7 @@ float Player::calcAngleDif(float angle)//расчет разницы текущ�
     return angleDif;
 }
 
-void Player::jump()
+void Player::jump()//прыжок
 {
     keyDown(' ');
     wait(getRandomNumber(50,70));
@@ -163,7 +162,7 @@ void Player::turnTo(float toX, float toY)//поворот к точке коор
         keyDown(turnKey); //нажимает кпопку поворота
         while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
             wait(getRandomNumber(50,70));
-            //angle=this->angleTo(toX, toY);//пересчет угла
+            angle=this->angleTo(toX, toY);//пересчет угла
             angleDif=this->calcAngleDif(angle);//пересчет разницы углов
             angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
             emit sendStatus(statusStr+QString::number(angleDif));//в статус бар
@@ -195,7 +194,7 @@ void Player::turnTo(Mob *mob)//поворот к мобу
         setStatus(PStatus::waiting);
     }
 }
-void Player::kill(Target *tar)
+void Player::kill(Target *tar)//убить таргет
 {
     this->moveTo(tar);//бег к таргету
     this->turnTo(tar);//поворот к таргету
@@ -226,12 +225,12 @@ void Player::kill(Target *tar)
     keyUp('3');
 }
 
-void Player::loot(Target *tar)
+void Player::loot(Target *tar)//залутать таргет
 {
     if (tar->hp()==0){
         setStatus(PStatus::looting, "Looting target: "+tar->name());
-        //this->turnTo(tar);
-        //this->moveTo(tar,MOVE_TO_POINT_PRECISION*2.0f);
+        this->turnTo(tar);
+        this->moveTo(tar,LOOT_PRECISION);
         wait(getRandomNumber(200,300));
         keyDown('f');
         wait(getRandomNumber(50,70));
@@ -240,7 +239,7 @@ void Player::loot(Target *tar)
     }
 }
 
-void Player::heal()
+void Player::heal()//похилиться
 {
     setStatus(PStatus::fighting, "Healing...");
     wait(getRandomNumber(200,300));

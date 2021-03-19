@@ -29,7 +29,6 @@ public:
     ~Player();
 
     QString nick() const {return *m_nick;}
-
     int maxHp() const {return *m_maxHp;}
     int maxMp();//УКАЗАТЕЛИ МАНЫ
     int mp();//УКАЗАТЕЛИ МАНЫ
@@ -40,10 +39,9 @@ public:
     float cos() const {return *m_cos;}
     float sin() const {return *m_sin;}
     float angle();
-    Point &start() {return m_start;}
     PStatus status() const {return m_status;}
 
-    float distTo(float x, float y);
+    float distTo(float x, float y);//расстояние до точки координат
     void turnTo(float toX, float toY);//поворот к точке координат
     void turnTo(Mob *mob);//поворот к мобу
     void moveTo(float toX, float toY, float dist=MOVE_TO_POINT_PRECISION);//движение к точке координат
@@ -57,7 +55,7 @@ signals:
     void sendStatus(const QString &status, int timeout=0);//сообщение в статус бар
 
 public slots:
-    void setStatus (PStatus status, const QString &statusMessage=0){
+    void setStatus (PStatus status, const QString &statusMessage=0){//изменение статуса игрока
         if (status!=m_status){
             m_status=status;
             switch (m_status) {
@@ -85,13 +83,12 @@ private:
     ExtPtr<float> m_cos;
     ExtPtr<float> m_sin;
     float m_angle;
-    Point m_start;
     PStatus m_status=PStatus::waiting;
 
     float angleTo(float x, float y);
     float calcAngleDif(float angle);
 
-    void jump();
+    void jump();//прыжок
 };
 
 #endif // PLAYER_H

@@ -1,9 +1,5 @@
 #include "mobs.h"
 
-Mob::Mob()
-{
-
-}
 
 Mob::Mob(const QString name, int num): m_base(name+QString::number(num)),
     m_enemy(&m_base, name+"Enemy"), m_type(&m_base, name+"Type"), m_x(&m_base, name+"X"), m_y(&m_base, name+"Y"), m_z(&m_base, name+"Z"), m_hp(&m_base, name+"HP")
@@ -11,11 +7,11 @@ Mob::Mob(const QString name, int num): m_base(name+QString::number(num)),
 
 }
 
-void Mob::refresh()
+void Mob::refresh()//пересчет указателей
 {
     QString name=m_base.name();
     m_base=ExtPtr<int>(name);
-    name.remove(QRegExp("[0-9]"));
+    name.remove(QRegExp("[0-9]"));//удаляет номер моба
     m_enemy=ExtPtr<int>(&m_base, name+"Enemy");
     m_type=ExtPtr<QString>(&m_base, name+"Type");
     m_x=ExtPtr<float>(&m_base, name+"X");
@@ -24,7 +20,7 @@ void Mob::refresh()
     m_hp=ExtPtr<int>(&m_base, name+"HP");
 }
 
-float Mob::distTo(float x, float y)
+float Mob::distTo(float x, float y)//расстояние до
 {
     float dX = x - *m_x; //дельта по X
     float dY = y - *m_y; //дельта по Y
@@ -61,7 +57,7 @@ Mobs::Mobs()
     for (int i=0;i<NUMBER_OF_MOBS ;i++ ) {
         m_allmobs.push_back(new Mob("mob", i));
     }
-    this->refresh();
+    this->filter();
 }
 
 Mobs::~Mobs()
@@ -72,12 +68,18 @@ Mobs::~Mobs()
     m_mobs.clear();
 }
 
-void Mobs::refresh()//обновлние и фильтрация мобов
+void Mobs::refresh()//обновлние мобов
+{ 
+    foreach (Mob* mob, m_allmobs) {
+        mob->refresh();
+    }
+}
+
+void Mobs::filter()//фильтрация мобов
 {
     m_mobs.clear();//очищает массив мобов
     m_mobs.push_back(new Mob("mob",0));//добавляем игрока в массив
     foreach(Mob* mobptr, m_allmobs){//цикл по массиву всех мобов
-        mobptr->refresh();//обновление указателя на моба
         if(mobptr->base()==MOB_BASE)//если vtable правлильный
             foreach(Mob* mob, m_mobs){//цикл по массиву рабочих мобов
                 if(mobptr->addr()==mob->addr())//если моб уже есть в массиве
@@ -89,8 +91,10 @@ void Mobs::refresh()//обновлние и фильтрация мобов
     m_mobs.erase(m_mobs.begin());//удаляем игрока
 }
 
-Mob *Mobs::closestTo(int x, int y) const
+Mob *Mobs::closestTo(int x, int y)//возврат ближайшего моба
 {
+    this->refresh();
+    this->filter();
     Mob *closest=nullptr;
     foreach(Mob* mob, m_mobs){
         if(closest==nullptr){
