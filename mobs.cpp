@@ -61,6 +61,7 @@ Mobs::Mobs()
     for (int i=0;i<NUMBER_OF_MOBS ;i++ ) {
         m_allmobs.push_back(new Mob("mob", i));
     }
+    this->refresh();
 }
 
 Mobs::~Mobs()

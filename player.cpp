@@ -230,7 +230,8 @@ void Player::loot(Target *tar)
 {
     if (tar->hp()==0){
         setStatus(PStatus::looting, "Looting target: "+tar->name());
-        this->moveTo(tar,MOVE_TO_POINT_PRECISION*2.0f);
+        //this->turnTo(tar);
+        //this->moveTo(tar,MOVE_TO_POINT_PRECISION*2.0f);
         wait(getRandomNumber(200,300));
         keyDown('f');
         wait(getRandomNumber(50,70));

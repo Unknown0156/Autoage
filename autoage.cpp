@@ -13,7 +13,8 @@ Autoage::Autoage(QWidget *parent)
     ui->pMpBar->setStyleSheet("QProgressBar::chunk{background-color: #2B7ED5;}");//цвет мана бара персонажа
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
-    timerId=startTimer(M_TIMER_DELAY);//таймер главного окна
+
+    timerId=startTimer(TIMER_DELAY);//таймер главного окна
 
     connect(player, &Player::statusChanged, ui->pStatus, &QLabel::setText);//статус персонажа в ui
     connect(player, &Player::sendStatus, statusBar(), &QStatusBar::showMessage);//сообщения в статус бар
@@ -42,10 +43,7 @@ Autoage::~Autoage()
 void Autoage::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
-    mobs->refresh();//ВРМЕННО
     userPrint(); //вывод в ui по таймеру
-
-
 }
 
 void Autoage::paintEvent(QPaintEvent *e){
@@ -56,9 +54,6 @@ void Autoage::closeEvent(QCloseEvent *e){
     Q_UNUSED(e);
     if (mobslist!=nullptr){
         mobslist->close();
-    }
-    if (radar!=nullptr){
-        radar->close();
     }
 }
 
@@ -74,17 +69,20 @@ void Autoage::mobslistSH()//показать\скрыть окно списка 
         mobslist->hide();
 }
 
-void Autoage::radarSH()//показать\скрыть окно радара
+void Autoage::radarSH()//показать\скрыть радар
 {
     if (radar==nullptr){
-        radar=new Radar(nullptr, player, target, &mobs->mobs());
-        radar->setStyleSheet("background-color:white;");
-        connect(radar, &Radar::onClose, ui->radar, &QAction::setChecked);
+        radar=new Radar(this, player, target, &mobs->mobs());
+        radar->move(0,geometry().height()-statusBar()->height());
     }
-    if (ui->radar->isChecked())
+    if (ui->radar->isChecked()){
         radar->show();
-    else
-        radar->hide();
+        this->setFixedSize(geometry().width(), geometry().height()+radar->height());
+    }else{
+        this->setFixedSize(geometry().width(), geometry().height()-radar->height());
+        delete radar;
+        radar=nullptr;
+    }
 }
 
 
@@ -103,7 +101,7 @@ void Autoage::userPrint()//вывод данных в ui
     ui->pCos->setText("Cos: "+QString::number(player->cos()));
     ui->pSin->setText("Sin: "+QString::number(player->sin()));
     ui->pAngle->setText("Angle: "+QString::number(player->angle()));
-    ui->label_3->setText("Dist from start point: "+QString::number(player->distTo(player->start().x, player->start().y)));
+    ui->startPos->setText("Start at ("+QString::number(player->start().x)+", "+QString::number(player->start().y)+"), dist="+QString::number(player->distTo(player->start().x, player->start().y),'f',2));
 
 
     //Таргет
@@ -115,6 +113,7 @@ void Autoage::userPrint()//вывод данных в ui
     ui->tZ->setText("Z: "+QString::number(target->z()));
 
     //Мобы
+    ui->mobs->setText("Mobs around: "+QString::number(mobs->mobs().size()));
     if(mobslist!=nullptr)
         mobslist->userPrint(mobs->allmobs());
 }
@@ -124,7 +123,7 @@ void Autoage::start()
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
     player->start()={player->x(), player->y()};
-    bot->start(M_TIMER_DELAY);
+    bot->start(TIMER_DELAY);
     botStarted=true;
 }
 

@@ -1,13 +1,11 @@
 #include <cmath>
 #include "radar.h"
-#include "ui_radar.h"
 
 Radar::Radar(QWidget *parent, Player *player, Target *target, const QVector<Mob*> *mobs) :
-    QWidget(parent), ui(new Ui::Radar),
-    m_player(player), m_target(target), m_mobs(mobs)
+    QWidget(parent), m_player(player), m_target(target), m_mobs(mobs)
 {
-    ui->setupUi(this);
-    setFixedSize(this->height(), this->width());
+    setFixedSize(350, 350);
+    setStyleSheet("background-color:white;");
     pImage.load(QCoreApplication::applicationDirPath()+"/"+"player.png");
     pRect=pImage.rect();
     tImage.load(QCoreApplication::applicationDirPath()+"/"+"target.png");
@@ -16,12 +14,12 @@ Radar::Radar(QWidget *parent, Player *player, Target *target, const QVector<Mob*
     fmImage.load(QCoreApplication::applicationDirPath()+"/"+"friendlymob.png");
     dmImage.load(QCoreApplication::applicationDirPath()+"/"+"deadmob.png");
     mRect=mImage.rect();
-    timerId=startTimer(M_TIMER_DELAY);
+    timerId=startTimer(TIMER_DELAY);
 }
 
 Radar::~Radar()
 {
-    delete ui;
+
 }
 
 void Radar::timerEvent(QTimerEvent *e){
@@ -31,9 +29,12 @@ void Radar::timerEvent(QTimerEvent *e){
 
 void Radar::paintEvent(QPaintEvent *e){
     Q_UNUSED(e);
-    setWindowTitle("Radar: "+QString::number(m_mobs->size())+" mobs around");//заголовок окна
-
+    QStyleOption opt;
+    opt.init(this);
     QPainter painter(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+    painter.drawLine(0,0,349,0);
+    painter.drawLine(0,350,350,350);
     painter.translate(this->width()/2,this->height()/2);//на центр окна
     //отрисовка иконки игрока
     painter.save();
@@ -61,13 +62,5 @@ void Radar::paintEvent(QPaintEvent *e){
             painter.drawImage(mRect, dmImage);
         painter.restore();
     }
-
-}
-
-void Radar::closeEvent(QCloseEvent *e)
-{
-    e->ignore();
-    hide();
-    emit onClose(false);
 
 }

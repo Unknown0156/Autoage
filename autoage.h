@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include <QMainWindow>
+#include <QHBoxLayout>
 #include <QTimer>
 #include <QVector>
 
@@ -42,6 +43,7 @@ public:
 private slots:
     void botting(){
         if(player->status()==PStatus::waiting){
+            mobs->refresh();
             if(player->distTo(player->start().x, player->start().y)>MAX_DIST_FROM_START && target->hp()==0)
                 player->moveTo(player->start().x, player->start().y);
             if (target->hp()>0){
@@ -51,7 +53,7 @@ private slots:
                 if(((float)player->hp()/player->maxHp())<0.8f)
                     player->heal();
                 Mob* closest=mobs->closestTo(player->x(), player->y());
-                player->moveTo(closest->x(), closest->y(), MOVE_TO_MOB_PRECISION);
+                player->moveTo(mobs->closestTo(player->x(), player->y()));
                 keyDown('\t');
                 Sleep(getRandomNumber(50,70));
                 keyUp('\t');
