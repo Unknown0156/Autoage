@@ -41,11 +41,9 @@ public:
     float angle();
     PStatus status() const {return m_status;}
 
-    float distTo(float x, float y);//расстояние до точки координат
-    void turnTo(float toX, float toY);//поворот к точке координат
-    void turnTo(Mob *mob);//поворот к мобу
-    void moveTo(float toX, float toY, float dist=MOVE_TO_POINT_PRECISION);//движение к точке координат
-    void moveTo(Mob *mob, float dist=MOVE_TO_MOB_PRECISION);//движение до моба
+    float distTo(const Point p);//расстояние до точки
+    void moveTo(const Point p, float dist=MOVE_TO_POINT_PRECISION);//движение к точке
+    void moveTo(Mob *mob, float dist=MOVE_TO_MOB_PRECISION);//движение к мобу
     void kill(Target *tar);//убить таргет
     void loot(Target *tar);//залутать таргет
     void heal();//похилиться
@@ -85,10 +83,8 @@ private:
     float m_angle;
     PStatus m_status=PStatus::waiting;
 
-    float angleTo(float x, float y);
-    float calcAngleDif(float angle);
-
-    void jump();//прыжок
+    float angleTo(const Point p);//угол до точки
+    void turnTo(const Point p, float angleDif=TURN_PRECISION);//поворот к точке
 };
 
 #endif // PLAYER_H

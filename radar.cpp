@@ -14,7 +14,6 @@ Radar::Radar(QWidget *parent, Player *player, Target *target, const QVector<Mob*
     fmImage.load(":/images/friendlymob.png");
     dmImage.load(":/images/deadmob.png");
     mRect=mImage.rect();
-    timerId=startTimer(TIMER_DELAY);
 }
 
 Radar::~Radar()
@@ -22,10 +21,6 @@ Radar::~Radar()
 
 }
 
-void Radar::timerEvent(QTimerEvent *e){
-    Q_UNUSED(e);
-    repaint();
-}
 
 void Radar::paintEvent(QPaintEvent *e){
     Q_UNUSED(e);

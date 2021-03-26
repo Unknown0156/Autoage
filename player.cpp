@@ -1,7 +1,3 @@
-#include <cmath>
-
-#include <QCoreApplication>
-
 #include "player.h"
 
 Player::Player()
@@ -45,18 +41,18 @@ float Player::angle()
 
 
 
-float Player::distTo(float x, float y)//расчет расстояния до точки координат
+float Player::distTo(const Point p)//расчет расстояния до точки координат
 {
-    float dX = x - *m_x; //дельта по X
-    float dY = y - *m_y; //дельта по Y
+    float dX = p.x - *m_x; //дельта по X
+    float dY = p.y - *m_y; //дельта по Y
     float dist = sqrt(dX * dX + dY * dY); //расстояние
     return dist;
 }
 
-float Player::angleTo(float x, float y)//расчет угла до точки координат
+float Player::angleTo(const Point p)//расчет угла до точки координат
 {
-    float dX = x - *m_x; //дельта по X
-    float dY = y - *m_y; //дельта по Y
+    float dX = p.x - *m_x; //дельта по X
+    float dY = p.y - *m_y; //дельта по Y
     float dist = sqrt(dX * dX + dY * dY); //расстояние
     float cos = dX / dist;
     float sin = dY / dist;
@@ -65,49 +61,25 @@ float Player::angleTo(float x, float y)//расчет угла до точки �
     return angle;
 }
 
-float Player::calcAngleDif(float angle)//расчет разницы текущего и нужного угла
+void Player::moveTo(const Point p, float dist)//движение к точке координат
 {
-    float angleDif=angle-this->angle();//разница между текущим и нужным углом
-    angleDif = angleDif >= 0 ? angleDif : angleDif + 360.0;//положителная разница улов
-    return angleDif;
-}
-
-void Player::jump()//прыжок
-{
-    keyDown(' ');
-    wait(getRandomNumber(50,70));
-    keyUp(' ');
-}
-
-
-void Player::moveTo(float toX, float toY, float dist)//движение к точке координат
-{
-    float cDist = this->distTo(toX, toY); //текущее расстояние до цели
-    this->turnTo(toX, toY);//поворот до цели
+    float cDist = distTo(p); //текущее расстояние до точки
+    turnTo(p);//поворот до точки
     if(cDist>dist){
-        QString statusStr="Moving to point ("+QString::number(toX)+";"+QString::number(toY)+")"+", distance=";
+        QString statusStr="Moving to point ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
         setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
         keyDown('w');
-        float angle, angleDif; //угол до цели и разница между углами
         while (cDist>dist){//ЦИКЛ ВАЙЛ!!!
-            angle = this->angleTo(toX, toY);//пересчет угла
-            angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом 0-360
-            angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-            if(angleDif>(TURN_PRECISION*2.0f)){//выравнивание на бегу
-                this->turnTo(toX, toY);
-                setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
-            }
-            wait(getRandomNumber(50,70));
-            float newDist=this->distTo(toX, toY);//пересчет расстояния
+            wait(getRandomNumber(70,90));
+            float newDist=distTo(p);//пересчет расстояния
             if(cDist==newDist){//если не двигается
-                //this->turnTo(0,0);
-                //setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
                 keyDown('w');
-                wait(getRandomNumber(50,70));
-                jump();
+                wait(getRandomNumber(20,30));
+                keyClick(' ');//прыжок
             }
             cDist=newDist;
-            emit sendStatus(statusStr+QString::number(cDist));//в статус бар
+            turnTo(p,TURN_PRECISION*2.0f);//выравнивание на бегу
+            setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
         }
         keyUp('w');
         setStatus(PStatus::waiting);
@@ -116,32 +88,25 @@ void Player::moveTo(float toX, float toY, float dist)//движение к то�
 
 void Player::moveTo(Mob *mob, float dist)//движение к мобу
 {
-    float cDist = this->distTo(mob->x(), mob->y()); //текущее расстояние до моба
-    this->turnTo(mob);//поворот до моба
+    Point p{mob->x(), mob->y()};//точка моба
+    float cDist = distTo(p); //текущее расстояние до моба
+    turnTo(p);//поворот до моба
     if(cDist>dist){
-        QString statusStr="Moving to mob ("+QString::number(mob->x())+";"+QString::number(mob->y())+")"+", distance=";
+        QString statusStr="Moving to mob ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
         setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
         keyDown('w');
-        float angle, angleDif; //угол до моба и разница между углами
         while (cDist>dist){//ЦИКЛ ВАЙЛ!!!
-            angle = this->angleTo(mob->x(), mob->y());//пересчет угла
-            angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом 0-360
-            angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-            if(angleDif>(TURN_PRECISION*2.0f)){//выравнивание на бегу
-                this->turnTo(mob);
-                setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
-            }
-            wait(getRandomNumber(50,70));
-            float newDist=this->distTo(mob->x(), mob->y());//пресчет расстояния
-            if(cDist==newDist){//если не двигается
-                //this->turnTo(0,0);
-                //setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
-                keyDown('w');
-                wait(getRandomNumber(50,70));
-                jump();
-            }
-            cDist=newDist;
-            emit sendStatus(statusStr+QString::number(cDist));//в статус бар
+             wait(getRandomNumber(70,90));
+             p=Point{mob->x(), mob->y()};//пересчет точки моба
+             float newDist=distTo(p);//пресчет расстояния
+             if(cDist==newDist){//если не двигается
+                 keyDown('w');
+                 wait(getRandomNumber(20,30));
+                 keyClick(' ');
+             }
+             cDist=newDist;
+             turnTo(p,TURN_PRECISION*2.0f);//выравнивание на бегу
+             setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
         }
         keyUp('w');
         setStatus(PStatus::waiting);
@@ -149,76 +114,56 @@ void Player::moveTo(Mob *mob, float dist)//движение к мобу
 
 }
 
-void Player::turnTo(float toX, float toY)//поворот к точке координат
+void Player::turnTo(const Point p, float angleDif)//поворот к точке координат
 {
-    float angle = this->angleTo(toX, toY);//найти угол
-    float angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом
-    char turnKey=' ';//кнопка поворота
-    turnKey = angleDif < 180.0f ? 'a' : 'd';//если разница углов меньше 180 жмет 'a', если нет 'd'
-    angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-    if (angleDif>TURN_PRECISION){
-        QString statusStr="Turning to point ("+QString::number(toX)+";"+QString::number(toY)+")"+", angle=";
-        setStatus(PStatus::turning, statusStr+QString::number(angle));//устанавливает статус
+    float angle = angleTo(p);//найти угол
+    float cAngleDif=angle-this->angle();//разница между текущим и нужным углом
+    cAngleDif = cAngleDif >= 0 ? cAngleDif : cAngleDif + 360.0;//положителная разница улов
+    char turnKey = cAngleDif < 180.0f ? 'a' : 'd';//если разница углов меньше 180 жмет 'a', если нет 'd'
+    cAngleDif=cAngleDif<180.0 ? cAngleDif : abs(cAngleDif-360.0);//асолютная дельта между углами 0-180
+    if (cAngleDif>angleDif){
+        QString statusStr="Turning to point ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", angleDif=";
+        setStatus(PStatus::turning, statusStr+QString::number(cAngleDif));//устанавливает статус
         keyDown(turnKey); //нажимает кпопку поворота
-        while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
+        while (cAngleDif>angleDif){ //ЦИКЛ ВАЙЛ!!!
             wait(getRandomNumber(50,70));
-            //angle=this->angleTo(toX, toY);//пересчет угла
-            angleDif=this->calcAngleDif(angle);//пересчет разницы углов
-            angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-            emit sendStatus(statusStr+QString::number(angleDif));//в статус бар
+            float newAngleDif=angle-this->angle();//пересчет разницы углов
+            newAngleDif = newAngleDif >= 0 ? newAngleDif : newAngleDif + 360.0;//положителная разница улов
+            newAngleDif=newAngleDif<180.0 ? newAngleDif : abs(newAngleDif-360.0);//асолютная дельта между углами 0-180
+            if(cAngleDif==newAngleDif){//если не поворачивает
+                keyDown(turnKey);
+                wait(getRandomNumber(20,30));
+            }
+            cAngleDif=newAngleDif;
+            emit sendStatus(statusStr+QString::number(cAngleDif));//в статус бар
         }
         keyUp(turnKey);
         setStatus(PStatus::waiting);
     }
 }
 
-void Player::turnTo(Mob *mob)//поворот к мобу
-{
-    float angle = this->angleTo(mob->x(), mob->y());//найти угол
-    float angleDif=this->calcAngleDif(angle);//разница между текущим и нужным углом
-    char turnKey=' ';//кнопка поворота
-    turnKey = angleDif < 180.0f ? 'a' : 'd';//если разница углов меньше 180 жмет 'a', если нет 'd'
-    angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-    if (angleDif>TURN_PRECISION){
-        QString statusStr="Turning to point ("+QString::number(mob->x())+";"+QString::number(mob->y())+")"+", angle=";
-        setStatus(PStatus::turning, statusStr+QString::number(angle));//устанавливает статус
-        keyDown(turnKey); //нажимает кпопку поворота
-        while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
-            wait(getRandomNumber(50,70));
-            //angle = this->angleTo(mob->x(), mob->y());//пересчет угла
-            angleDif=this->calcAngleDif(angle);//пересчет разницы углов
-            angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
-            emit sendStatus(statusStr+QString::number(angleDif));//в статус бар
-        }
-        keyUp(turnKey);
-        setStatus(PStatus::waiting);
-    }
-}
 void Player::kill(Target *tar)//убить таргет
 {
-    this->moveTo(tar);//бег к таргету
-    this->turnTo(tar);//поворот к таргету
+    moveTo(tar);//бег к таргету
+    turnTo(Point{tar->x(), tar->y()});//поворот к таргету
     setStatus(PStatus::fighting, "Killing target: "+tar->name());
     keyDown('3');
-    int tarCurHp=tar->hp();
+    int cTarHp=tar->hp();
     int count=0;
     while (tar->hp()>0){//ЦИКЛ ВАЙЛ!!!
         wait(getRandomNumber(100,200));
         if(((float)this->hp()/this->maxHp())<0.8f){//если персонаж продамажен
             keyUp('3');
             wait(getRandomNumber(100,200));
-            keyDown('2');
-            wait(getRandomNumber(50,70));
-            keyUp('2');
-            wait(getRandomNumber(50,70));
+            keyClick('2');
+            wait(getRandomNumber(30,50));
             keyDown('3');
         }
         count++;
-        if(count>10){//если хп цели не убывает
-            count=0;
-            if((tarCurHp-tar->hp())<1000)
+        if(count%10==0){//если хп цели не убывает
+            if((cTarHp-tar->hp())<500)
                 keyDown('3');
-            tarCurHp=tar->hp();
+            cTarHp=tar->hp();
         }
     }
     setStatus(PStatus::waiting);
@@ -229,12 +174,10 @@ void Player::loot(Target *tar)//залутать таргет
 {
     if (tar->hp()==0){
         setStatus(PStatus::looting, "Looting target: "+tar->name());
-        this->turnTo(tar);
-        this->moveTo(tar,LOOT_PRECISION);
+        turnTo(Point{tar->x(), tar->y()});
+        moveTo(tar,MOVE_TO_POINT_PRECISION*2.0f);
         wait(getRandomNumber(200,300));
-        keyDown('f');
-        wait(getRandomNumber(50,70));
-        keyUp('f');
+        keyClick('f');
         setStatus(PStatus::waiting);
     }
 }
@@ -243,13 +186,9 @@ void Player::heal()//похилиться
 {
     setStatus(PStatus::fighting, "Healing...");
     wait(getRandomNumber(200,300));
-    keyDown('4');
+    keyClick('4');
     wait(getRandomNumber(50,70));
-    keyUp('4');
-    wait(getRandomNumber(50,70));
-    keyDown('1');
-    wait(getRandomNumber(50,70));
-    keyUp('1');
+    keyClick('1');
     setStatus(PStatus::waiting);
 }
 

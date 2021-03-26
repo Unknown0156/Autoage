@@ -1,5 +1,14 @@
 #include "mobs.h"
 
+QDataStream &operator>>(QDataStream &in, Point &p){//чтение точки из потока
+    in >> p.x >> p.y >>p.z;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Point &p){//запись точки в поток
+    out << p.x << p.y <<p.z;
+    return out;
+}
 
 Mob::Mob(const QString name, int num): m_base(name+QString::number(num)),
     m_enemy(&m_base, name+"Enemy"), m_type(&m_base, name+"Type"), m_x(&m_base, name+"X"), m_y(&m_base, name+"Y"), m_z(&m_base, name+"Z"), m_hp(&m_base, name+"HP")
@@ -20,10 +29,10 @@ void Mob::refresh()//пересчет указателей
     m_hp=ExtPtr<int>(&m_base, name+"HP");
 }
 
-float Mob::distTo(float x, float y)//расстояние до
+float Mob::distTo(const Point p)//расстояние до точки
 {
-    float dX = x - *m_x; //дельта по X
-    float dY = y - *m_y; //дельта по Y
+    float dX = p.x - *m_x; //дельта по X
+    float dY = p.y - *m_y; //дельта по Y
     float dist = sqrt(dX * dX + dY * dY); //расстояние
     return dist;
 }
@@ -36,7 +45,6 @@ Mob::~Mob()
 Target::Target()
     :Mob("target"), m_name("targetName"), m_maxHp("targetMaxHP"), m_hp(&m_maxHp, "targetHP")
 {
-    //m_hp=ExtPtr<int>(&m_maxHp, "targetHP");//реинициализация родительского поля
 }
 
 Target::~Target()
@@ -91,7 +99,7 @@ void Mobs::filter()//фильтрация мобов
     m_mobs.erase(m_mobs.begin());//удаляем игрока
 }
 
-Mob *Mobs::closestTo(int x, int y)//возврат ближайшего моба
+Mob *Mobs::closestTo(const Point p)//возврат ближайшего моба
 {
     this->refresh();
     this->filter();
@@ -103,10 +111,13 @@ Mob *Mobs::closestTo(int x, int y)//возврат ближайшего моба
             else
                 continue;
         }
-        if(mob->enemy() && mob->hp()>0 && mob->distTo(x, y) < closest->distTo(x,y))
+        if(mob->enemy() && mob->hp()>0 && mob->distTo(p) < closest->distTo(p))
             closest=mob;
     }
-    return closest;
+    if(closest)
+        return closest;
+    else
+        return m_allmobs[0];
 }
 
 

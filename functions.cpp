@@ -1,6 +1,6 @@
 #include "functions.h"
 
-extern HWND hWnd;//ГЛОБАЛЬНЫЙ хэндлер окна
+extern HWND g_hWnd;//ГЛОБАЛЬНЫЙ хэндлер окна
 
 DWORD getProcId (const wchar_t* procName) //определение ид процесса по имени исполняемого файла
 {
@@ -78,18 +78,18 @@ bool keyDown(char keyS) //нажатие кнопки
 {
     switch (keyS)
     {
-    case 'w': return PostMessage(hWnd, WM_KEYDOWN, 0x57, MAKELPARAM(0x1, 0x11));
-    case 'a': return PostMessage(hWnd, WM_KEYDOWN, 0x41, MAKELPARAM(0x1, 0x1E));
-    case 's': return PostMessage(hWnd, WM_KEYDOWN, 0x53, MAKELPARAM(0x1, 0x1F));
-    case 'd': return PostMessage(hWnd, WM_KEYDOWN, 0x44, MAKELPARAM(0x1, 0x20));
-    case 'f': return PostMessage(hWnd, WM_KEYDOWN, 0x46, MAKELPARAM(0x1, 0x21));
-    case '1': return PostMessage(hWnd, WM_KEYDOWN, 0x31, MAKELPARAM(0x1, 0x2));
-    case '2': return PostMessage(hWnd, WM_KEYDOWN, 0x32, MAKELPARAM(0x1, 0x3));
-    case '3': return PostMessage(hWnd, WM_KEYDOWN, 0x33, MAKELPARAM(0x1, 0x4));
-    case '4': return PostMessage(hWnd, WM_KEYDOWN, 0x34, MAKELPARAM(0x1, 0x5));
-    case '5': return PostMessage(hWnd, WM_KEYDOWN, 0x35, MAKELPARAM(0x1, 0x6));
-    case '\t': return PostMessage(hWnd, WM_KEYDOWN, 0x9, MAKELPARAM(0x1, 0xF));
-    case ' ': return PostMessage(hWnd, WM_KEYDOWN, 0x20, MAKELPARAM(0x1, 0x39));
+    case 'w': return PostMessage(g_hWnd, WM_KEYDOWN, 0x57, MAKELPARAM(0x1, 0x11));
+    case 'a': return PostMessage(g_hWnd, WM_KEYDOWN, 0x41, MAKELPARAM(0x1, 0x1E));
+    case 's': return PostMessage(g_hWnd, WM_KEYDOWN, 0x53, MAKELPARAM(0x1, 0x1F));
+    case 'd': return PostMessage(g_hWnd, WM_KEYDOWN, 0x44, MAKELPARAM(0x1, 0x20));
+    case 'f': return PostMessage(g_hWnd, WM_KEYDOWN, 0x46, MAKELPARAM(0x1, 0x21));
+    case '1': return PostMessage(g_hWnd, WM_KEYDOWN, 0x31, MAKELPARAM(0x1, 0x2));
+    case '2': return PostMessage(g_hWnd, WM_KEYDOWN, 0x32, MAKELPARAM(0x1, 0x3));
+    case '3': return PostMessage(g_hWnd, WM_KEYDOWN, 0x33, MAKELPARAM(0x1, 0x4));
+    case '4': return PostMessage(g_hWnd, WM_KEYDOWN, 0x34, MAKELPARAM(0x1, 0x5));
+    case '5': return PostMessage(g_hWnd, WM_KEYDOWN, 0x35, MAKELPARAM(0x1, 0x6));
+    case '\t': return PostMessage(g_hWnd, WM_KEYDOWN, 0x9, MAKELPARAM(0x1, 0xF));
+    case ' ': return PostMessage(g_hWnd, WM_KEYDOWN, 0x20, MAKELPARAM(0x1, 0x39));
     default: return 0;//нет такой кнопки
     }
 }
@@ -98,21 +98,32 @@ bool keyUp(char keyS) //отжатие кнопки
 {
     switch (keyS)
     {
-    case 'w': return PostMessage(hWnd, WM_KEYUP, 0x57, MAKELPARAM(0x1, 0xC011));
-    case 'a': return PostMessage(hWnd, WM_KEYUP, 0x41, MAKELPARAM(0x1, 0xC01E));
-    case 's': return PostMessage(hWnd, WM_KEYUP, 0x53, MAKELPARAM(0x1, 0xC01F));
-    case 'd': return PostMessage(hWnd, WM_KEYUP, 0x44, MAKELPARAM(0x1, 0xC020));
-    case 'f': return PostMessage(hWnd, WM_KEYUP, 0x46, MAKELPARAM(0x1, 0xC021));
-    case '1': return PostMessage(hWnd, WM_KEYUP, 0x31, MAKELPARAM(0x1, 0xC002));
-    case '2': return PostMessage(hWnd, WM_KEYUP, 0x32, MAKELPARAM(0x1, 0xC003));
-    case '3': return PostMessage(hWnd, WM_KEYUP, 0x33, MAKELPARAM(0x1, 0xC004));
-    case '4': return PostMessage(hWnd, WM_KEYUP, 0x34, MAKELPARAM(0x1, 0xC005));
-    case '5': return PostMessage(hWnd, WM_KEYUP, 0x35, MAKELPARAM(0x1, 0xC006));
-    case '\t': return PostMessage(hWnd, WM_KEYUP, 0x9, MAKELPARAM(0x1, 0xC00F));
-    case ' ':  return PostMessage(hWnd, WM_KEYUP, 0x20, MAKELPARAM(0x1, 0xC039));
+    case 'w': return PostMessage(g_hWnd, WM_KEYUP, 0x57, MAKELPARAM(0x1, 0xC011));
+    case 'a': return PostMessage(g_hWnd, WM_KEYUP, 0x41, MAKELPARAM(0x1, 0xC01E));
+    case 's': return PostMessage(g_hWnd, WM_KEYUP, 0x53, MAKELPARAM(0x1, 0xC01F));
+    case 'd': return PostMessage(g_hWnd, WM_KEYUP, 0x44, MAKELPARAM(0x1, 0xC020));
+    case 'f': return PostMessage(g_hWnd, WM_KEYUP, 0x46, MAKELPARAM(0x1, 0xC021));
+    case '1': return PostMessage(g_hWnd, WM_KEYUP, 0x31, MAKELPARAM(0x1, 0xC002));
+    case '2': return PostMessage(g_hWnd, WM_KEYUP, 0x32, MAKELPARAM(0x1, 0xC003));
+    case '3': return PostMessage(g_hWnd, WM_KEYUP, 0x33, MAKELPARAM(0x1, 0xC004));
+    case '4': return PostMessage(g_hWnd, WM_KEYUP, 0x34, MAKELPARAM(0x1, 0xC005));
+    case '5': return PostMessage(g_hWnd, WM_KEYUP, 0x35, MAKELPARAM(0x1, 0xC006));
+    case '\t': return PostMessage(g_hWnd, WM_KEYUP, 0x9, MAKELPARAM(0x1, 0xC00F));
+    case ' ':  return PostMessage(g_hWnd, WM_KEYUP, 0x20, MAKELPARAM(0x1, 0xC039));
     default: return 0;//нет такой кнопки
     }
 }
+
+bool keyClick(char keyS)
+{
+    if(keyDown(keyS)){
+        wait(getRandomNumber(50,70));
+        keyUp(keyS);
+        return true;
+    }
+    return false;
+}
+
 
 void wait(int t)
 {
@@ -129,5 +140,6 @@ int getRandomNumber(int min, int max) //генератор рандомных ч
     std::uniform_int_distribution <int> dist(min, max); //задаем интервал целых чисел
     return dist(mersenne); //генерирует следующее целое число в интервале с сидом из вихря
 }
+
 
 

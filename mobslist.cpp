@@ -3,12 +3,12 @@
 
 #include "constants.h"
 
-Mobslist::Mobslist(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::Mobslist)
+Mobslist::Mobslist(QWidget *parent, const Mobs *mobs) :
+    QWidget(parent), ui(new Ui::Mobslist),
+    m_mobs(mobs)
 {
     ui->setupUi(this);
-    for (int i=0;i<NUMBER_OF_MOBS ;i++ ) {
+    for (int i=0;i<m_mobs->allmobs().size() ;i++ ) {
         ui->list->addItem("");
     }
 }
@@ -26,14 +26,21 @@ void Mobslist::closeEvent(QCloseEvent *e)
 
 }
 
-void Mobslist::userPrint(const Mobs *mobs)
+void Mobslist::userPrint()
 {
 
     QVector <Mob*> mobsList;
-    if (ui->filtermobs->isChecked())
-        mobsList=mobs->mobs();
-    else
-        mobsList=mobs->allmobs();
+    if (ui->filtermobs->isChecked()){
+        mobsList=m_mobs->mobs();
+        for (int i=mobsList.size();i<ui->list->count();i++ ) {
+            ui->list->item(i)->setHidden(true);
+        }
+    }else{
+        mobsList=m_mobs->allmobs();
+        for (int i=0;i<ui->list->count();i++ ) {
+            ui->list->item(i)->setHidden(false);
+        }
+    }
     setWindowTitle("List of mobs: "+QString::number(mobsList.size())+" mobs around");
     for (int i=0;i<mobsList.size() ;i++ ) {
         QString mobstr=mobsList[i]->name()+" ";
@@ -46,10 +53,6 @@ void Mobslist::userPrint(const Mobs *mobs)
         mobstr+=QString::number(mobsList[i]->hp())+" ";
         mobstr+=QString::number(mobsList[i]->enemy());
         ui->list->item(i)->setText(mobstr);
-    }
-    for (int i=mobsList.size();i<NUMBER_OF_MOBS ;i++ ) {
-        if(ui->list->item(i)->text()=="") break;
-        else ui->list->item(i)->setText("");
     }
 }
 

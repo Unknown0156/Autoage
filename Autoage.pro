@@ -38,9 +38,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    TODO \
-    offsets.ini \
-    settings.ini
+    TODO
 
 RESOURCES += \
     res.qrc

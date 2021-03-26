@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>500</height>
+    <width>500</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,16 +18,16 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>630</width>
-     <height>430</height>
+     <width>480</width>
+     <height>350</height>
     </rect>
    </property>
   </widget>
   <widget class="QCheckBox" name="filtermobs">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>440</y>
+     <x>390</x>
+     <y>370</y>
      <width>91</width>
      <height>20</height>
     </rect>

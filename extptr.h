@@ -8,15 +8,14 @@
 
 //Класс внешнего указателя
 
-extern HANDLE hProc;//ГЛОБАЛЬНЫЙ хэндлер процесса
-extern uintptr_t modBase;//ГЛОБАЛЬНЫЙ адрес модуля
-extern QSettings *offsets;//ГЛОБАЛЬНЫЙ ини файл оффсетов
+extern HANDLE g_hProc;//ГЛОБАЛЬНЫЙ хэндлер процесса
+extern uintptr_t g_modBase;//ГЛОБАЛЬНЫЙ адрес модуля
+extern QSettings *g_offsets;//ГЛОБАЛЬНЫЙ ини файл оффсетов
 
 template <class T>//тип данных по указателю
 class ExtPtr
 {
 public:
-    ExtPtr();
     ExtPtr(const QString name); //инициализация по имени указателя в ини файле offsets
     ExtPtr(uintptr_t base, const QString name);//иницализация по указателю+оффсет из ини файла
     ~ExtPtr();
@@ -25,7 +24,7 @@ public:
     uintptr_t operator&() const {return m_ptr;}//возврат указателя
     T operator*() const{//чтение памяти по указателю
         T value;
-        if (!ReadProcessMemory(hProc, (BYTE*)m_ptr, &value, sizeof(value), nullptr))//если не может прочитать
+        if (!ReadProcessMemory(g_hProc, (BYTE*)m_ptr, &value, sizeof(value), nullptr))//если не может прочитать
             value = NULL;
         return value;
     }
@@ -41,20 +40,14 @@ private:
 };
 
 template<class T>
-ExtPtr<T>::ExtPtr()
-{
-
-}
-
-template<class T>
 ExtPtr<T>::ExtPtr(const QString name):m_name(name)//инициализация по имени указателя в ини файле offsets
 {
-    QString offstr=offsets->value(m_name).toString();//читает строку оффсетов из ини файла
+    QString offstr=g_offsets->value(m_name).toString();//читает строку оффсетов из ини файла
     QStringList offlist=offstr.split(" ");//разделяет строку оффсетов на части
     bool ok;
-    m_ptr=modBase+offlist.at(0).toUInt(&ok,16);//адрес модуля + первый оффсет
+    m_ptr=g_modBase+offlist.at(0).toUInt(&ok,16);//адрес модуля + первый оффсет
     for(int i=1; i<offlist.size();i++) {//итерация по оффсетам
-        if (!ReadProcessMemory(hProc, (BYTE*)m_ptr, &m_ptr, sizeof(m_ptr), 0)){//читает значение по указателю m_ptr в m_ptr
+        if (!ReadProcessMemory(g_hProc, (BYTE*)m_ptr, &m_ptr, sizeof(m_ptr), 0)){//читает значение по указателю m_ptr в m_ptr
             m_ptr = 0;//если не может прочитать
             break; //выходит из цикла по оффсетам
         }
@@ -65,7 +58,7 @@ ExtPtr<T>::ExtPtr(const QString name):m_name(name)//инициализация �
 template<class T>
 ExtPtr<T>::ExtPtr(uintptr_t base, const QString name):m_name(name)//иницализация по указателю+оффсет из ини файла
 {
-    QString offstr=offsets->value(m_name).toString();//читает строку оффсетов из ини файла
+    QString offstr=g_offsets->value(m_name).toString();//читает строку оффсетов из ини файла
     bool ok;
     m_ptr=base+offstr.toUInt(&ok, 16);//базовый адрес+оффсет
 }

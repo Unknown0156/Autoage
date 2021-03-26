@@ -3,13 +3,17 @@
 #include <cmath>
 
 #include <QString>
+#include <QDataStream>
 
 #include "constants.h"
 #include "extptr.h"
 
 struct Point{
-    float x,y;
+    float x,y,z=0;
 };
+
+QDataStream &operator>>(QDataStream &in, Point &p);//чтение точки из потока
+QDataStream &operator<<(QDataStream &out, const Point &p);//запись точки в поток
 
 class Mob
 {
@@ -27,9 +31,9 @@ public:
     float z() const {return *m_z;}
     int hp() const {return *m_hp;}
 
-    bool operator==(const Mob &mob){return mob.addr()==this->addr();}
+    bool operator==(const Mob &mob){return mob.addr()==this->addr();}//сравнение по полю адреса
     void refresh();//пересчет указателей
-    float distTo(float x, float y);//расстояние до
+    float distTo(const Point p);//расстояние до точки
 
 private:
 
@@ -56,10 +60,6 @@ private:
     ExtPtr<QString> m_name;
     ExtPtr<int> m_maxHp;
     ExtPtr<int> m_hp;
-
-    //добавить уровень
-    //добавить расстояние
-
 };
 
 class Mobs
@@ -73,7 +73,7 @@ public:
 
     void refresh();//обновление мобов
     void filter();//фильтрация мобов
-    Mob *closestTo(int x, int y);//возврат ближайшего моба
+    Mob *closestTo(const Point p);//возврат ближайшего моба
 
 private:
     QVector <Mob*> m_allmobs;

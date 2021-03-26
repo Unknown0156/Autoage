@@ -60,7 +60,7 @@ void Autoage::closeEvent(QCloseEvent *e){
 void Autoage::mobslistSH()//показать\скрыть окно списка мобов
 {
     if (mobslist==nullptr){
-        mobslist=new Mobslist();
+        mobslist=new Mobslist(nullptr, mobs);
         connect(mobslist, &Mobslist::onClose, ui->mobslist, &QAction::setChecked);
     }
     if (ui->mobslist->isChecked())
@@ -89,7 +89,7 @@ void Autoage::radarSH()//показать\скрыть радар
 void Autoage::userPrint()//вывод данных в ui
 {
     //Стартовая позиция
-    ui->startPos->setText("Start at ("+QString::number(m_stPos.x)+", "+QString::number(m_stPos.y)+"), dist="+QString::number(player->distTo(m_stPos.x, m_stPos.y),'f',2));
+    ui->startPos->setText("Start at ("+QString::number(m_stPos.x)+", "+QString::number(m_stPos.y)+"), dist="+QString::number(player->distTo(m_stPos),'f',2));
 
     //Персонаж
     QString title=QString::number(player->x(),'f',1)+" "+QString::number(player->y(),'f',1)+" "+player->nick();//заголовок окна
@@ -117,7 +117,9 @@ void Autoage::userPrint()//вывод данных в ui
     //Мобы
     ui->mobs->setText("Mobs around: "+QString::number(mobs->mobs().size()));
     if(mobslist!=nullptr)
-        mobslist->userPrint(mobs);
+        mobslist->userPrint();
+    if(radar!=nullptr)
+        radar->repaint();
 }
 
 void Autoage::start()
@@ -139,7 +141,7 @@ void Autoage::moveTo()
 {
     float x=ui->toX->value();
     float y=ui->toY->value();
-    player->moveTo(x,y);
+    player->moveTo(Point{x,y});
 }
 
 

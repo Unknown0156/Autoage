@@ -15,18 +15,19 @@ class Mobslist : public QWidget
     Q_OBJECT
 
 public:
-    explicit Mobslist(QWidget *parent = nullptr);
+    explicit Mobslist(QWidget *parent = nullptr, const Mobs *mobs=nullptr);
     ~Mobslist();
 
     void closeEvent (QCloseEvent *e);
 
-    void userPrint(const Mobs *mobs);
+    void userPrint();
 
 signals:
     void onClose(bool check);
 
 private:
     Ui::Mobslist *ui;
+    const Mobs *m_mobs;
 };
 
 #endif // MOBSLIST_H

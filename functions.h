@@ -17,6 +17,7 @@ uintptr_t getModuleBaseAddress(DWORD procId, const wchar_t* modName); //опре
 void getWindowFromProcessID(DWORD ProcessID,HWND &hWnd);//определние хэндлера окна по ид процессу
 bool keyDown(char keyS); //нажатие кнопки
 bool keyUp(char keyS); //отжатие кнопки
+bool keyClick(char keyS);//клик на кнопку
 void wait(int t=0);//ожидание
 int getRandomNumber(int min = INT16_MIN, int max = INT16_MAX); //генератор рандомных чисел (от, до)
 

@@ -5,7 +5,6 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include <QVector>
 
 #include "constants.h"
 #include "functions.h"
@@ -33,32 +32,29 @@ public:
     void mobslistSH();//показать\скрыть окно списка мобов
     void radarSH();//показать\скрыть окно радара
 
-    Point &stPos() {return m_stPos;}
+    Point &stPos() {return m_stPos;}//стартовая точка
     void userPrint();//вывод данных в ui
     void start();
     void stop();
 
-    void moveTo();
+    void moveTo();//ВРЕМЕННО
 
 private slots:
     void botting(){
         if(player->status()==PStatus::waiting){//если игрок ничего не делает
-            if(player->distTo(m_stPos.x, m_stPos.y)>MAX_DIST_FROM_START && target->hp()==0)//если ушел на макс удаление от старта
-                player->moveTo(m_stPos.x, m_stPos.y);//бежит на старт
+            if(player->distTo(m_stPos)>MAX_DIST_FROM_START && target->hp()==0)//если ушел на макс удаление от старта
+                player->moveTo(m_stPos);//бежит на старт
             if (target->hp()>0){//если есть цель
                 player->kill(target);
                 player->loot(target);
             }else{//если цели нет
                 if(((float)player->hp()/player->maxHp())<0.8f)//если персонаж продамажен
                     player->heal();
-                Mob* closest=mobs->closestTo(player->x(), player->y());//находит ближайшего моба
+                Mob* closest=mobs->closestTo(Point {player->x(), player->y()});//находит ближайшего к персонажу моба
                 player->moveTo(closest);//двигается к ближайшему мобу
-                keyDown('\t');//таб ВРЕМЕННО
-                Sleep(getRandomNumber(50,70));
-                keyUp('\t');
-                Sleep(getRandomNumber(50,70));
+                keyClick('\t');//табает моба
                 if(target->hp()==0)//если не нашли цель ВРЕМЕННО
-                    player->moveTo(m_stPos.x, m_stPos.y);
+                    player->moveTo(m_stPos);
             }
         }
     }
