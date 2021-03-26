@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>player.png</file>
+        <file>target.png</file>
+        <file>mob.png</file>
+        <file>deadmob.png</file>
+        <file>friendlymob.png</file>
+    </qresource>
+    <qresource prefix="/settings">
+        <file>settings.ini</file>
+        <file>offsets.ini</file>
+    </qresource>
+</RCC>

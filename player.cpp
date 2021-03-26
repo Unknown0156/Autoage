@@ -162,7 +162,7 @@ void Player::turnTo(float toX, float toY)//поворот к точке коор
         keyDown(turnKey); //нажимает кпопку поворота
         while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
             wait(getRandomNumber(50,70));
-            angle=this->angleTo(toX, toY);//пересчет угла
+            //angle=this->angleTo(toX, toY);//пересчет угла
             angleDif=this->calcAngleDif(angle);//пересчет разницы углов
             angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
             emit sendStatus(statusStr+QString::number(angleDif));//в статус бар
@@ -185,7 +185,7 @@ void Player::turnTo(Mob *mob)//поворот к мобу
         keyDown(turnKey); //нажимает кпопку поворота
         while (angleDif>TURN_PRECISION){ //ЦИКЛ ВАЙЛ!!!
             wait(getRandomNumber(50,70));
-            angle = this->angleTo(mob->x(), mob->y());//пересчет угла
+            //angle = this->angleTo(mob->x(), mob->y());//пересчет угла
             angleDif=this->calcAngleDif(angle);//пересчет разницы углов
             angleDif=angleDif<180.0 ? angleDif : abs(angleDif-360.0);//асолютная дельта между углами 0-180
             emit sendStatus(statusStr+QString::number(angleDif));//в статус бар

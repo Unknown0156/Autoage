@@ -6,13 +6,13 @@ Radar::Radar(QWidget *parent, Player *player, Target *target, const QVector<Mob*
 {
     setFixedSize(350, 350);
     setStyleSheet("background-color:white;");
-    pImage.load(QCoreApplication::applicationDirPath()+"/"+"player.png");
+    pImage.load(":/images/player.png");
     pRect=pImage.rect();
-    tImage.load(QCoreApplication::applicationDirPath()+"/"+"target.png");
+    tImage.load(":/images/target.png");
     tRect=tImage.rect();
-    mImage.load(QCoreApplication::applicationDirPath()+"/"+"mob.png");
-    fmImage.load(QCoreApplication::applicationDirPath()+"/"+"friendlymob.png");
-    dmImage.load(QCoreApplication::applicationDirPath()+"/"+"deadmob.png");
+    mImage.load(":/images/mob.png");
+    fmImage.load(":/images/friendlymob.png");
+    dmImage.load(":/images/deadmob.png");
     mRect=mImage.rect();
     timerId=startTimer(TIMER_DELAY);
 }
@@ -34,7 +34,6 @@ void Radar::paintEvent(QPaintEvent *e){
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
     painter.drawLine(0,0,349,0);
-    painter.drawLine(0,350,350,350);
     painter.translate(this->width()/2,this->height()/2);//на центр окна
     //отрисовка иконки игрока
     painter.save();

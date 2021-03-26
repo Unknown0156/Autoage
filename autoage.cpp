@@ -117,7 +117,7 @@ void Autoage::userPrint()//вывод данных в ui
     //Мобы
     ui->mobs->setText("Mobs around: "+QString::number(mobs->mobs().size()));
     if(mobslist!=nullptr)
-        mobslist->userPrint(mobs->allmobs());
+        mobslist->userPrint(mobs);
 }
 
 void Autoage::start()

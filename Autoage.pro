@@ -39,10 +39,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     TODO \
-    deadmob.png \
-    friendlymob.png \
-    mob.png \
     offsets.ini \
-    player.png \
-    settings.ini \
-    target.png
+    settings.ini
+
+RESOURCES += \
+    res.qrc

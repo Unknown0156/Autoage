@@ -20,7 +20,7 @@ public:
 
     void closeEvent (QCloseEvent *e);
 
-    void userPrint(const QVector<Mob*> &mobs);
+    void userPrint(const Mobs *mobs);
 
 signals:
     void onClose(bool check);
