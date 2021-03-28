@@ -3,6 +3,8 @@
 
 #include <QString>
 #include <QObject>
+#include <QTimer>
+#include <QEventLoop>
 
 #include "constants.h"
 #include "functions.h"
@@ -14,18 +16,36 @@ enum PStatus //что делает персонаж
     waiting,
     turning,
     moving,
+    turnandmove,
     fighting,
+    healing,
     looting
 };
 
+struct Memory{
+    float angleDif;
+    float angle;
+    float cAngleDif;
+    char turnKey;
 
+    QString statusStr;
+    Point p;
+    Mob *mob;
+    float dist;
+    float cDist;
+
+    int cTarHp;
+    int count;
+
+    bool drainCD;
+};
 
 class Player: public QObject
 {
     Q_OBJECT
 
 public:
-    Player();
+    Player(Target *target);
     ~Player();
 
     QString nick() const {return *m_nick;}
@@ -48,9 +68,14 @@ public:
     void loot(Target *tar);//залутать таргет
     void heal();//похилиться
 
+    void onTurning();//во время поворота
+    void onMoving();//во время бега
+    void onFighting();//во время файта
+
 signals:
     void statusChanged(const QString &status);//при изменении статуса персонажа
     void sendStatus(const QString &status, int timeout=0);//сообщение в статус бар
+    void exitLoop();//выход из цикла
 
 public slots:
     void setStatus (PStatus status, const QString &statusMessage=0){//изменение статуса игрока
@@ -61,12 +86,41 @@ public slots:
             case PStatus::turning:emit statusChanged("Player is turning");break;
             case PStatus::moving:emit statusChanged("Player is moving");break;
             case PStatus::fighting:emit statusChanged("Player is fighting");break;
+            case PStatus::healing:emit statusChanged("Player is healing");break;
             case PStatus::looting:emit statusChanged("Player is looting");break;
             default: emit statusChanged("unknown_status");
             }
         }
         if(statusMessage!=0)
             emit sendStatus(statusMessage);
+    }
+
+    void checking(){
+        switch(status()){
+        case PStatus::waiting:{//если игрок ничего не делает
+            break;
+        }
+        case PStatus::turning:{//если игрок поворачивается
+            onTurning();
+            break;
+        }
+        case PStatus::moving:{//если игрок бежит
+            onMoving();
+            break;
+        }
+        case PStatus::turnandmove:{//если игрок бежит и поворачитвается
+            onTurning();
+            onMoving();
+            break;
+        }
+        case PStatus::fighting:{//если игрок бьет моба
+            onFighting();
+            break;
+        }
+        default:{
+            break;
+        }
+        }
     }
 
 private:
@@ -82,6 +136,12 @@ private:
     ExtPtr<float> m_sin;
     float m_angle;
     PStatus m_status=PStatus::waiting;
+    Target *m_target;
+    Memory m_memory;
+    QTimer *check;
+    QEventLoop *loop;
+
+    void looping();
 
     float angleTo(const Point p);//угол до точки
     void turnTo(const Point p, float angleDif=TURN_PRECISION);//поворот к точке

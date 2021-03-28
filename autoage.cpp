@@ -4,7 +4,7 @@
 
 Autoage::Autoage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Autoage),
-      bot(new QTimer(this)), player(new Player), target(new Target), mobs(new Mobs)
+      bot(new QTimer(this)), target(new Target), player(new Player(target)), mobs(new Mobs)
 {
     ui->setupUi(this);
     setFixedSize(geometry().width(), geometry().height());//фиксирует размер окна
@@ -24,7 +24,7 @@ Autoage::Autoage(QWidget *parent)
     connect(ui->mobslist, &QAction::triggered, this, &Autoage::mobslistSH);
     connect(ui->start, &QPushButton::clicked, this, &Autoage::start);
     connect(ui->stop, &QPushButton::clicked, this, &Autoage::stop);
-    connect(bot,&QTimer::timeout, this, &Autoage::botting);
+    connect(bot, &QTimer::timeout, this, &Autoage::botting);
     connect(ui->moveTo, &QPushButton::clicked, this, &Autoage::moveTo);
 }
 
@@ -35,6 +35,7 @@ Autoage::~Autoage()
         delete mobslist;
     if (radar!=nullptr)
         delete radar;
+    delete bot;
     delete player;
     delete target;
     delete mobs;
@@ -55,6 +56,7 @@ void Autoage::closeEvent(QCloseEvent *e){
     if (mobslist!=nullptr){
         mobslist->close();
     }
+    player->exitLoop();
 }
 
 void Autoage::mobslistSH()//показать\скрыть окно списка мобов
@@ -135,6 +137,7 @@ void Autoage::stop()
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
     bot->stop();
+    player->exitLoop();
 }
 
 void Autoage::moveTo()

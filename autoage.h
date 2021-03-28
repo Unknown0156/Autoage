@@ -32,7 +32,6 @@ public:
     void mobslistSH();//показать\скрыть окно списка мобов
     void radarSH();//показать\скрыть окно радара
 
-    Point &stPos() {return m_stPos;}//стартовая точка
     void userPrint();//вывод данных в ui
     void start();
     void stop();
@@ -45,6 +44,7 @@ private slots:
             if(player->distTo(m_stPos)>MAX_DIST_FROM_START && target->hp()==0)//если ушел на макс удаление от старта
                 player->moveTo(m_stPos);//бежит на старт
             if (target->hp()>0){//если есть цель
+                player->moveTo(target);//бег к таргету
                 player->kill(target);
                 player->loot(target);
             }else{//если цели нет
@@ -65,8 +65,8 @@ private:
     Mobslist *mobslist=nullptr;
     int timerId=0; //таймер главного окна
     QTimer *bot;
-    Player *player;
     Target *target;
+    Player *player;
     Mobs *mobs;
     Point m_stPos;
 };
