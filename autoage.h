@@ -41,20 +41,21 @@ public:
 private slots:
     void botting(){
         if(player->status()==PStatus::waiting){//если игрок ничего не делает
-            if(player->distTo(m_stPos)>MAX_DIST_FROM_START && target->hp()==0)//если ушел на макс удаление от старта
-                player->moveTo(m_stPos);//бежит на старт
-            if (target->hp()>0){//если есть цель
+            if(player->distTo(stPos)>MAX_DIST_FROM_START && target->hp()==0 && !target->loot()){//если ушел на макс удаление от старта
+                player->moveTo(stPos);return;}//бежит на старт
+            if (target->hp()>0 && player->distTo(target)<MAX_DIST_FROM_START){//если есть цель и она не далеко
                 player->moveTo(target);//бег к таргету
-                player->kill(target);
-                player->loot(target);
-            }else{//если цели нет
+                if(player->status()==PStatus::waiting)//если уже у таргета
+                    player->kill();
+            }else{//если цели нет или она далеко
+                if(target->loot()){//если цель не облутана
+                    player->loot();return;}
                 if(((float)player->hp()/player->maxHp())<0.8f)//если персонаж продамажен
                     player->heal();
                 Mob* closest=mobs->closestTo(Point {player->x(), player->y()});//находит ближайшего к персонажу моба
                 player->moveTo(closest);//двигается к ближайшему мобу
-                keyClick('\t');//табает моба
-                if(target->hp()==0)//если не нашли цель ВРЕМЕННО
-                    player->moveTo(m_stPos);
+                if(player->status()==PStatus::waiting)//если уже у ближайшего моба
+                    keyClick('\t');//табает моба
             }
         }
     }
@@ -68,6 +69,6 @@ private:
     Target *target;
     Player *player;
     Mobs *mobs;
-    Point m_stPos;
+    Point stPos;
 };
 #endif // AUTOAGE_H

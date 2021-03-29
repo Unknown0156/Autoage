@@ -55,11 +55,13 @@ public:
     QString name();
     int maxHp() const {return *m_maxHp;}
     int hp() const {return *m_hp;}
+    bool &loot() {return m_loot;}
 
 private:
     ExtPtr<QString> m_name;
     ExtPtr<int> m_maxHp;
     ExtPtr<int> m_hp;
+    bool m_loot=false;
 };
 
 class Mobs

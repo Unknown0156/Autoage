@@ -13,7 +13,7 @@ Autoage::Autoage(QWidget *parent)
     ui->pMpBar->setStyleSheet("QProgressBar::chunk{background-color: #2B7ED5;}");//цвет мана бара персонажа
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
-    m_stPos={player->x(), player->y()};//инициализация стартовой позиции
+    stPos={player->x(), player->y()};//инициализация стартовой позиции
     timerId=startTimer(TIMER_DELAY);//таймер главного окна
 
     connect(player, &Player::statusChanged, ui->pStatus, &QLabel::setText);//статус персонажа в ui
@@ -56,7 +56,6 @@ void Autoage::closeEvent(QCloseEvent *e){
     if (mobslist!=nullptr){
         mobslist->close();
     }
-    player->exitLoop();
 }
 
 void Autoage::mobslistSH()//показать\скрыть окно списка мобов
@@ -91,7 +90,7 @@ void Autoage::radarSH()//показать\скрыть радар
 void Autoage::userPrint()//вывод данных в ui
 {
     //Стартовая позиция
-    ui->startPos->setText("Start at ("+QString::number(m_stPos.x)+", "+QString::number(m_stPos.y)+"), dist="+QString::number(player->distTo(m_stPos),'f',2));
+    ui->startPos->setText("Start at ("+QString::number(stPos.x)+", "+QString::number(stPos.y)+"), dist="+QString::number(player->distTo(stPos),'f',2));
 
     //Персонаж
     QString title=QString::number(player->x(),'f',1)+" "+QString::number(player->y(),'f',1)+" "+player->nick();//заголовок окна
@@ -128,7 +127,7 @@ void Autoage::start()
 {
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
-    m_stPos={player->x(), player->y()};
+    stPos={player->x(), player->y()};
     bot->start(TIMER_DELAY);
 }
 
@@ -137,7 +136,10 @@ void Autoage::stop()
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
     bot->stop();
-    player->exitLoop();
+    player->setStatus(PStatus::waiting);
+    keyUp('w');
+    keyUp('a');
+    keyUp('d');
 }
 
 void Autoage::moveTo()
