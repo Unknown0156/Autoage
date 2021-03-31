@@ -9,7 +9,6 @@ Player::Player(Target *target)
     m_angle=atan2(*m_sin, *m_cos);
     m_angle=(m_angle > 0 ? m_angle : (2*M_PI + m_angle)) * 180 / M_PI;
     connect(check, &QTimer::timeout, this, &Player::checking);
-    check->start(TIMER_DELAY);
 }
 
 Player::~Player()
@@ -17,29 +16,46 @@ Player::~Player()
     delete check;
 }
 
-int Player::maxMp(){//пока указатели маны глючат ВРЕМЕННО!!!
-    if (*m_maxMp==NULL){
+int Player::maxMp(){
+    if(*m_maxMp<10000 || *m_maxMp>20000){
         m_maxMp=ExtPtr<int>("playerMaxMP");
-    }
-
-    return *m_maxMp;
-}
-
-
-int Player::mp(){//пока указатели маны глючат ВРЕМЕННО!!!
-    if (*m_mp==NULL){
         m_mp=ExtPtr<int>(&m_maxMp, "playerMP");
     }
-
-    return *m_mp;
+    return *m_maxMp;
 }
-
 
 float Player::angle()
 {
     m_angle=atan2(*m_sin, *m_cos);
     m_angle=(m_angle > 0 ? m_angle : (2*M_PI + m_angle)) * 180 / M_PI;
     return m_angle;
+}
+
+void Player::proceedCD(int t)
+{
+    if(m_arcCD>0)
+        m_arcCD-=t;
+    if(m_drainCD>0)
+        m_drainCD-=t;
+}
+
+void Player::wait(int t)
+{
+    for(;t>0;t--){
+        Sleep(1);
+        QCoreApplication::processEvents();
+    }
+    proceedCD(t);
+}
+
+bool Player::keyClick(char keyS)
+{
+    if(keyDown(keyS)){
+        wait(getRandomNumber(50,70));
+        keyUp(keyS);
+        return true;
+    }
+    return false;
 }
 
 float Player::angleTo(const Point p)//расчет угла до точки координат
@@ -53,7 +69,6 @@ float Player::angleTo(const Point p)//расчет угла до точки ко
     angle=(angle > 0 ? angle : (2*M_PI + angle)) * 180 / M_PI;
     return angle;
 }
-
 float Player::distTo(const Point p)//расчет расстояния до точки координат
 {
     float dX = p.x - *m_x; //дельта по X
@@ -61,13 +76,12 @@ float Player::distTo(const Point p)//расчет расстояния до то
     float dist = sqrt(dX * dX + dY * dY); //расстояние
     return dist;
 }
-
 float Player::distTo(const Mob *mob)
 {
     return distTo(Point{mob->x(), mob->y()});
 }
 
-void Player::turnTo(const Point p, float angleDif)//поворот к точке координат
+bool Player::turnTo(const Point p, float angleDif)//поворот к точке координат
 {
     float angle = angleTo(p);//найти угол
     float cAngleDif=angle-this->angle();//разница между текущим и нужным углом
@@ -82,11 +96,13 @@ void Player::turnTo(const Point p, float angleDif)//поворот к точке
         m_memory.cAngleDif=cAngleDif;
         m_memory.turnKey=turnKey;
         if(m_status==PStatus::moving){
-            setStatus(PStatus::turnandmove, statusStr+QString::number(angle));//устанавливает статус
+            setStatus(PStatus::moveandturn, statusStr+QString::number(angle));//устанавливает статус
         }else{
             setStatus(PStatus::turning, statusStr+QString::number(angle));//устанавливает статус
         }
+        return true;
     }
+    return false;
 }
 
 void Player::onTurning()
@@ -94,23 +110,24 @@ void Player::onTurning()
     float newAngleDif=m_memory.angle-this->angle();//пересчет разницы углов
     newAngleDif = newAngleDif >= 0 ? newAngleDif : newAngleDif + 360.0;//положителная разница улов
     newAngleDif=newAngleDif<180.0 ? newAngleDif : abs(newAngleDif-360.0);//асолютная дельта между углами 0-180
+    if(newAngleDif<m_memory.angleDif){//если поврот завершен
+        keyUp(m_memory.turnKey);
+        if(m_status==PStatus::moveandturn){
+            setStatus(PStatus::moving);return;
+        }else{
+            setStatus(PStatus::waiting);return;
+        }
+    }
     if(m_memory.cAngleDif==newAngleDif)//если не поворачивает
         keyDown(m_memory.turnKey);
     m_memory.cAngleDif=newAngleDif;
-    if(newAngleDif<m_memory.angleDif){//если поврот завершен
-        keyUp(m_memory.turnKey);
-        if(m_status==PStatus::turnandmove){
-            setStatus(PStatus::moving);
-        }else{
-            setStatus(PStatus::waiting);
-        }
-    }
+
 }
-void Player::moveTo(const Point p, float dist)//движение к точке координат
+
+bool Player::moveTo(const Point p, float dist)//движение к точке координат
 {
-    turnTo(p);//поворот до точки
-    while(m_status==PStatus::turning)
-        wait(50);
+    if(turnTo(p))//поворот до точки
+        return true;
     float cDist = distTo(p); //текущее расстояние до точки
     if(cDist>dist){
         QString statusStr="Moving to point ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
@@ -121,15 +138,15 @@ void Player::moveTo(const Point p, float dist)//движение к точке �
         m_memory.count=0;
         keyDown('w');
         setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
+        return true;
     }
+    return false;
 }
-
-void Player::moveTo(Mob *mob, float dist)//движение к мобу
+bool Player::moveTo(Mob *mob, float dist)//движение к мобу
 {
     Point p{mob->x(), mob->y()};//точка моба
-    turnTo(p);//поворот до моба
-    while(m_status==PStatus::turning)
-        wait(50);
+    if(turnTo(p))//поворот до моба
+        return true;
     float cDist = distTo(p); //текущее расстояние до моба
     if(cDist>dist){
         QString statusStr="Moving to mob ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
@@ -140,87 +157,104 @@ void Player::moveTo(Mob *mob, float dist)//движение к мобу
         m_memory.count=0;
         keyDown('w');
         setStatus(PStatus::moving, statusStr+QString::number(cDist));//устанавливает статус
+        return true;
     }
+    return false;
 }
-
 void Player::onMoving()
 {
     m_memory.count++;
     if(m_memory.mob!=nullptr)
         m_memory.p=Point {m_memory.mob->x(), m_memory.mob->y()};
     float newDist=distTo(m_memory.p);//пересчет расстояния
-    if(m_memory.count%5==0){//раз в 5 таймеров
-        if(abs(m_memory.cDist-newDist)<0.1f){//прошел меньше ...
-            keyDown('w');
-            wait(getRandomNumber(20,30));
-            keyClick(' ');//прыжок
-        } 
-        m_memory.cDist=newDist;
-    }
     emit sendStatus(m_memory.statusStr+QString::number(newDist));//в статус бар
-    if(m_status==PStatus::moving)
-        turnTo(m_memory.p,TURN_PRECISION*2.0f);//выравнивание на бегу
-    if(newDist<m_memory.dist){
+    if(newDist<m_memory.dist){//если добежал
         keyUp('w');
         m_memory.count=0;
         m_memory.mob=nullptr;
-        if(m_status==PStatus::turnandmove){
-            setStatus(PStatus::turning);
+        if(m_status==PStatus::moveandturn){
+            setStatus(PStatus::turning);return;
         }else{
-            setStatus(PStatus::waiting);
+            setStatus(PStatus::waiting);return;
         }
     }
-}
+    if(m_status==PStatus::moving){
+    if(m_memory.count%10==0){//раз в секунду
+        if(abs(m_memory.cDist-newDist)<0.2f){//при застревании
+            keyDown('w');
+            wait(getRandomNumber(50,70));
+            Point p{-m_memory.p.x, -m_memory.p.y};
+            if(turnTo(p)){//разворот на 180 градусов
+                keyClick(' ');//прыжок
+                return;
+            }
+        } 
+        m_memory.cDist=newDist;
+    }
+    turnTo(m_memory.p,TURN_PRECISION*2.0f);//выравнивание на бегу
+    }
 
+}
 
 void Player::kill()//убить таргет
 {
     m_memory.cTarHp=m_target->hp();
     m_memory.count=0;
-    m_memory.drainCD=false;
     if(m_target->hp()>0)
         setStatus(PStatus::fighting, "Killing target: "+m_target->name());
 }
-
 void Player::onFighting()
-{
+{ 
     m_memory.count++;
-    if(((float)this->hp()/this->maxHp())>0.8f && m_memory.count==1)//открывается с молнии
-        keyClick('5');
-    if(m_memory.count%2==0){//раз в 2 таймера
-        if(((float)this->hp()/this->maxHp())<0.95f && !m_memory.drainCD){//если персонаж продамажен и дрэйн не на кд
-            if(distTo(m_target)>MOVE_TO_MOB_PRECISION/2.0f){
-                moveTo(m_target, MOVE_TO_MOB_PRECISION/2.0f);
+    if(m_target->hp()==0){//если таргет убит
+        m_memory.count=0;
+        m_target->loot()=true;
+        setStatus(PStatus::waiting);return;
+    }
+    if(m_memory.count%2==0){//раз в 0.2 секунды
+        if(((float)this->hp()/this->maxHp())>0.8f && m_memory.count==2 && m_arcCD<=0){//открывается с молнии
+            keyClick('5');
+            m_arcCD=10000;
+            m_memory.castTime=2500;
+            setStatus(PStatus::casting);return;
+        }
+        if(((float)this->hp()/this->maxHp())<0.95f && (float)m_target->hp()/m_target->maxHp()>0.3f && m_drainCD<=0){//если персонаж продамажен и дрэйн не на кд
+            if(moveTo(m_target, MOVE_TO_MOB_PRECISION/2.0f)){
+                return;
             }else{
+                wait(getRandomNumber(300,400));
                 keyClick('2');
-                m_memory.drainCD=true;
+                m_drainCD=20000;
             }
         }else
             keyClick('3');
     }
-    if(m_memory.count%50==0){//если хп цели не убывает
-        if((m_memory.cTarHp-m_target->hp())<500){
-            moveTo(m_target, MOVE_TO_POINT_PRECISION*2.0f);
+    if(m_memory.count%50==0){//раз в 5 секунд
+        if((m_memory.cTarHp-m_target->hp())<500){//если хп цели не убывает
+            moveTo(m_target, MOVE_TO_POINT_PRECISION);
         }
         m_memory.cTarHp=m_target->hp();
-    }
-    if(m_target->hp()==0){//если таргет убит
-        m_memory.count=0;
-        m_target->loot()=true;
-        setStatus(PStatus::waiting);
-    }
+    }  
+}
+void Player::onCasting()//во время каста
+{
+    m_memory.castTime-=TIMER_DELAY;
+    if(m_memory.castTime<=0)
+        setStatus(PStatus::fighting);
+
 }
 
 void Player::loot()//залутать таргет
 {
-    if(m_target->hp()==0)
+    if(m_target->loot()){
+        m_memory.p=Point{m_target->x(), m_target->y()};
         setStatus(PStatus::looting, "Looting target: "+m_target->name());
+    }
 }
-
 void Player::onLooting()
 {
-    if(distTo(m_target)>MOVE_TO_POINT_PRECISION*2.0f){//если далеко от трупа
-        moveTo(m_target,MOVE_TO_POINT_PRECISION*2.0f);
+    if(moveTo(m_memory.p,MOVE_TO_POINT_PRECISION*2.0f)){//если далеко от трупа
+        return;
     }else{
         wait(getRandomNumber(200,300));
         keyClick('f');
@@ -234,8 +268,39 @@ void Player::heal()//похилиться
     setStatus(PStatus::healing, "Healing...");
     wait(getRandomNumber(200,300));
     keyClick('4');
-    wait(getRandomNumber(50,70));
+    wait(getRandomNumber(100,200));
     keyClick('1');
+    setStatus(PStatus::waiting);
+}
+
+void Player::start()
+{
+    check->start(TIMER_DELAY);
+    setStatus(PStatus::waiting);
+}
+void Player::stop()
+{
+    check->stop();
+    switch(status()){
+    case PStatus::waiting:{//если игрок ничего не делает
+        break;
+    }
+    case PStatus::turning:{//если игрок поворачивается
+        keyUp(m_memory.turnKey);break;}
+    case PStatus::moving:{//если игрок бежит
+        keyUp('w');break;}
+    case PStatus::moveandturn:{//если игрок бежит и поворачитвается
+        keyUp(m_memory.turnKey);keyUp('w');break;}
+    case PStatus::fighting:{//если игрок бьет моба
+        break;}
+    case PStatus::casting:{//если игрок бьет моба
+        break;}
+    case PStatus::looting:{//если игрок бьет моба
+        break;}
+    default:{
+        break;
+    }
+    }
     setStatus(PStatus::waiting);
 }
 

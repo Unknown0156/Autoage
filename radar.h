@@ -16,7 +16,7 @@ class Radar : public QWidget
     Q_OBJECT
 
 public:
-    explicit Radar(QWidget *parent = nullptr, Player *player=nullptr, Target *target=nullptr, const QVector<Mob*> *mobs=nullptr);
+    explicit Radar(const Point &stPos, QWidget *parent = nullptr, Player *player=nullptr, Target *target=nullptr, const QVector<Mob*> *mobs=nullptr);
     ~Radar();
 
     void paintEvent(QPaintEvent *e);
@@ -25,7 +25,9 @@ private:
     Player *m_player;
     Target *m_target;
     const QVector<Mob*> *m_mobs;
-    QImage pImage;
+    const Point &m_stPos;
+    QImage ptImage;
+    QImage plImage;
     QRect pRect;
     QImage tImage;
     QRect tRect;

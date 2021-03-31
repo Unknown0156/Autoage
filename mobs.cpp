@@ -39,17 +39,16 @@ float Mob::distTo(const Point p)//расстояние до точки
 
 Mob::~Mob()
 {
-
 }
 
 Target::Target()
-    :Mob("target"), m_name("targetName"), m_maxHp("targetMaxHP"), m_hp(&m_maxHp, "targetHP")
+    :Mob("target"), m_name("targetName"), m_maxHp("targetMaxHP")
 {
+    Mob::m_hp=ExtPtr<int>(&m_maxHp, "targetHP");
 }
 
 Target::~Target()
 {
-
 }
 
 QString Target::name()
@@ -99,25 +98,24 @@ void Mobs::filter()//фильтрация мобов
     m_mobs.erase(m_mobs.begin());//удаляем игрока
 }
 
-Mob *Mobs::closestTo(const Point p)//возврат ближайшего моба
+Mob *Mobs::closestTo(const Point p, const Point stPos, const int range)//возврат ближайшего к точке моба в радиусе фарма
 {
-    this->refresh();
-    this->filter();
-    Mob *closest=nullptr;
-    foreach(Mob* mob, m_mobs){
-        if(closest==nullptr){
-            if(mob->enemy() && mob->hp()>0)
-                closest=mob;
-            else
-                continue;
-        }
-        if(mob->enemy() && mob->hp()>0 && mob->distTo(p) < closest->distTo(p))
-            closest=mob;
+    if(m_closest){
+        delete m_closest;
+        m_closest=nullptr;
     }
-    if(closest)
-        return closest;
-    else
-        return m_allmobs[0];
+    foreach(Mob* mob, m_mobs){//итерация по мобам
+        if(m_closest==nullptr){//если первый моб еще не найден
+            if(mob->enemy() && mob->hp()>0 && mob->distTo(stPos)<range){//если моб враг и его хп больше 0 и он в рендже от старта
+                m_closest=new Mob("mob");
+                *m_closest=*mob;
+            }
+        }else{
+            if(mob->enemy() && mob->hp()>0 && mob->distTo(stPos)<range && mob->distTo(p) < m_closest->distTo(p))//если новый моб ближе текущего
+                *m_closest=*mob;
+        }
+    }
+    return m_closest;
 }
 
 

@@ -18,14 +18,14 @@ QDataStream &operator<<(QDataStream &out, const Point &p);//запись точ�
 class Mob
 {
 public:
-    Mob(const QString name, int num=NULL);//имя в файле оффсетов и номер если нужно
+    Mob(const QString name, int num=0);//имя в файле оффсетов и номер если нужно
     ~Mob();
 
-    const QString &name() const {return m_base.name();}
+    const QString &id() const {return m_base.name();}
     int addr() const {return &m_base;}
     int base() const {return *m_base;}
-    int enemy() const {return *m_enemy;}
-    QString type() const {return *m_type;}
+    virtual int enemy() const {return *m_enemy;}
+    virtual QString type() const {return *m_type;}
     float x() const {return *m_x;}
     float y() const {return *m_y;}
     float z() const {return *m_z;}
@@ -36,14 +36,16 @@ public:
     float distTo(const Point p);//расстояние до точки
 
 private:
-
     ExtPtr<int> m_base;//базовый указатель
     ExtPtr<int> m_enemy;//друг\враг
     ExtPtr<QString> m_type;//тип моба
     ExtPtr<float> m_x;
     ExtPtr<float> m_y;
     ExtPtr<float> m_z;
+
+protected:
     ExtPtr<int> m_hp;
+
 };
 
 class Target:public Mob
@@ -52,15 +54,15 @@ public:
     Target();
     ~Target();
 
+    int enemy()=delete;
+    QString type()=delete;
     QString name();
     int maxHp() const {return *m_maxHp;}
-    int hp() const {return *m_hp;}
     bool &loot() {return m_loot;}
 
 private:
     ExtPtr<QString> m_name;
     ExtPtr<int> m_maxHp;
-    ExtPtr<int> m_hp;
     bool m_loot=false;
 };
 
@@ -75,11 +77,12 @@ public:
 
     void refresh();//обновление мобов
     void filter();//фильтрация мобов
-    Mob *closestTo(const Point p);//возврат ближайшего моба
+    Mob *closestTo (const Point p, const Point stPos, const int range=0);//возврат ближайшего к точке моба в радиусе фарма
 
 private:
     QVector <Mob*> m_allmobs;
     QVector <Mob*> m_mobs;
+    Mob *m_closest=nullptr;
 };
 
 #endif // MOB_H

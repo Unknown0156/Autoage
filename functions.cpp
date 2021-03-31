@@ -1,6 +1,6 @@
 #include "functions.h"
 
-extern HWND g_hWnd;//ГЛОБАЛЬНЫЙ хэндлер окна
+extern HWND g_hWnd;//хэндлер окна
 
 DWORD getProcId (const wchar_t* procName) //определение ид процесса по имени исполняемого файла
 {
@@ -23,7 +23,7 @@ DWORD getProcId (const wchar_t* procName) //определение ид проц
             } while (Process32Next(hSnap, &procEntry)); //следующий процесс в снимке
 
         }
-    }//else ошибка снимка
+    }
     CloseHandle(hSnap); //закрывает снимок
     return procId; //возвращает ид процесса, либо 0 если процесс не найден
 }
@@ -47,31 +47,33 @@ uintptr_t getModuleBaseAddress(DWORD procId, const wchar_t* modName) //опре�
                 }
             } while (Module32Next(hSnap, &modEntry));//следующий модуль в снимке
         }
-    }//else ошибка снимка
+    }
     CloseHandle(hSnap);//закрывает снимок
     return modBase;//возвращает адресс модуля, либо 0 если модуль не найден
 }
 
-void getWindowFromProcessID(DWORD ProcessID,HWND &hWnd) //определние хэндлера окна по ид процесса
+HWND getWindowHandle(DWORD procId, const QString &title) //определние хэндлера окна по ид процесса
 {
-    HWND hCurWnd = NULL;//итератор по хэндлерам
+    HWND hWnd=0;//нужный хэндлер
+    HWND curHWnd = NULL;//текущий хэндлер окна
     do
     {
-        hCurWnd = FindWindowEx(NULL, hCurWnd, NULL, NULL);//ищет следующее окно
-        DWORD ProcID = 0;
-        GetWindowThreadProcessId(hCurWnd, &ProcID);//получает ид процесса окна
-        if (ProcID == ProcessID)
+        curHWnd = FindWindowEx(NULL, curHWnd, NULL, NULL);//ищет следующее окно
+        DWORD curProcId = 0;//текущий ид процесса
+        GetWindowThreadProcessId(curHWnd, &curProcId);//получает ид процесса окна
+        if (curProcId == procId)
         {
-            char hwchar[256];
-            GetWindowTextA(hCurWnd,hwchar,sizeof(hwchar));//получает заголовок окна
-            QString hwstr = QString::fromStdString(hwchar);
-            if (hwstr.contains(TITLE_CONTAIN)){//если заголов сожержит нужный текст
-                hWnd=hCurWnd;
+            char curTitle[256];
+            GetWindowTextA(curHWnd, curTitle,sizeof(curTitle));//получает заголовок окна
+            QString qcurTitle = QString::fromStdString(curTitle);
+            if (qcurTitle.contains(title)){//если заголов сожержит нужный текст
+                hWnd=curHWnd;
                 break;
             }
         }
     }
-    while (hCurWnd != NULL);
+    while (curHWnd != NULL);
+    return hWnd;
 }
 
 bool keyDown(char keyS) //нажатие кнопки
@@ -88,6 +90,10 @@ bool keyDown(char keyS) //нажатие кнопки
     case '3': return PostMessage(g_hWnd, WM_KEYDOWN, 0x33, MAKELPARAM(0x1, 0x4));
     case '4': return PostMessage(g_hWnd, WM_KEYDOWN, 0x34, MAKELPARAM(0x1, 0x5));
     case '5': return PostMessage(g_hWnd, WM_KEYDOWN, 0x35, MAKELPARAM(0x1, 0x6));
+    case '6': return PostMessage(g_hWnd, WM_KEYDOWN, 0x36, MAKELPARAM(0x1, 0x7));
+    case '7': return PostMessage(g_hWnd, WM_KEYDOWN, 0x37, MAKELPARAM(0x1, 0x8));
+    case '8': return PostMessage(g_hWnd, WM_KEYDOWN, 0x38, MAKELPARAM(0x1, 0x9));
+    case '9': return PostMessage(g_hWnd, WM_KEYDOWN, 0x39, MAKELPARAM(0x1, 0xA));
     case '\t': return PostMessage(g_hWnd, WM_KEYDOWN, 0x9, MAKELPARAM(0x1, 0xF));
     case ' ': return PostMessage(g_hWnd, WM_KEYDOWN, 0x20, MAKELPARAM(0x1, 0x39));
     default: return 0;//нет такой кнопки
@@ -108,13 +114,17 @@ bool keyUp(char keyS) //отжатие кнопки
     case '3': return PostMessage(g_hWnd, WM_KEYUP, 0x33, MAKELPARAM(0x1, 0xC004));
     case '4': return PostMessage(g_hWnd, WM_KEYUP, 0x34, MAKELPARAM(0x1, 0xC005));
     case '5': return PostMessage(g_hWnd, WM_KEYUP, 0x35, MAKELPARAM(0x1, 0xC006));
+    case '6': return PostMessage(g_hWnd, WM_KEYUP, 0x36, MAKELPARAM(0x1, 0xC007));
+    case '7': return PostMessage(g_hWnd, WM_KEYUP, 0x37, MAKELPARAM(0x1, 0xC008));
+    case '8': return PostMessage(g_hWnd, WM_KEYUP, 0x38, MAKELPARAM(0x1, 0xC009));
+    case '9': return PostMessage(g_hWnd, WM_KEYUP, 0x39, MAKELPARAM(0x1, 0xC00A));
     case '\t': return PostMessage(g_hWnd, WM_KEYUP, 0x9, MAKELPARAM(0x1, 0xC00F));
     case ' ':  return PostMessage(g_hWnd, WM_KEYUP, 0x20, MAKELPARAM(0x1, 0xC039));
     default: return 0;//нет такой кнопки
     }
 }
 
-bool keyClick(char keyS)
+bool keyClick(char keyS)//клик на кнопку
 {
     if(keyDown(keyS)){
         wait(getRandomNumber(50,70));
@@ -125,7 +135,7 @@ bool keyClick(char keyS)
 }
 
 
-void wait(int t)
+void wait(int t)//ожидание
 {
     for(;t>0;t--){
         Sleep(1);

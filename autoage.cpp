@@ -25,7 +25,6 @@ Autoage::Autoage(QWidget *parent)
     connect(ui->start, &QPushButton::clicked, this, &Autoage::start);
     connect(ui->stop, &QPushButton::clicked, this, &Autoage::stop);
     connect(bot, &QTimer::timeout, this, &Autoage::botting);
-    connect(ui->moveTo, &QPushButton::clicked, this, &Autoage::moveTo);
 }
 
 Autoage::~Autoage()
@@ -44,11 +43,9 @@ Autoage::~Autoage()
 void Autoage::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
+    mobs->refresh();
+    mobs->filter();
     userPrint(); //вывод в ui по таймеру
-}
-
-void Autoage::paintEvent(QPaintEvent *e){
-    Q_UNUSED(e);
 }
 
 void Autoage::closeEvent(QCloseEvent *e){
@@ -73,7 +70,7 @@ void Autoage::mobslistSH()//показать\скрыть окно списка 
 void Autoage::radarSH()//показать\скрыть радар
 {
     if (radar==nullptr){
-        radar=new Radar(this, player, target, &mobs->mobs());
+        radar=new Radar(stPos, this, player, target, &mobs->mobs());
         radar->move(0,geometry().height()-statusBar()->height());
     }
     if (ui->radar->isChecked()){
@@ -128,6 +125,7 @@ void Autoage::start()
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
     stPos={player->x(), player->y()};
+    player->start();
     bot->start(TIMER_DELAY);
 }
 
@@ -136,17 +134,7 @@ void Autoage::stop()
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
     bot->stop();
-    player->setStatus(PStatus::waiting);
-    keyUp('w');
-    keyUp('a');
-    keyUp('d');
-}
-
-void Autoage::moveTo()
-{
-    float x=ui->toX->value();
-    float y=ui->toY->value();
-    player->moveTo(Point{x,y});
+    player->stop();
 }
 
 

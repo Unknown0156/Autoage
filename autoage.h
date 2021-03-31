@@ -26,7 +26,6 @@ public:
     ~Autoage();
 
     void timerEvent(QTimerEvent *e);
-    void paintEvent(QPaintEvent *e);
     void closeEvent(QCloseEvent *e);
 
     void mobslistSH();//показать\скрыть окно списка мобов
@@ -36,26 +35,23 @@ public:
     void start();
     void stop();
 
-    void moveTo();//ВРЕМЕННО
-
 private slots:
     void botting(){
         if(player->status()==PStatus::waiting){//если игрок ничего не делает
-            if(player->distTo(stPos)>MAX_DIST_FROM_START && target->hp()==0 && !target->loot()){//если ушел на макс удаление от старта
-                player->moveTo(stPos);return;}//бежит на старт
-            if (target->hp()>0 && player->distTo(target)<MAX_DIST_FROM_START){//если есть цель и она не далеко
-                player->moveTo(target);//бег к таргету
-                if(player->status()==PStatus::waiting)//если уже у таргета
+            if(target->loot()){//если цель не облутана
+                player->loot();return;}
+            if (target->hp()>0 && target->distTo(stPos)<FARM_RANGE*1.1){//если есть цель и она не далеко
+                if(!player->moveTo(target))//бег к таргету
                     player->kill();
-            }else{//если цели нет или она далеко
-                if(target->loot()){//если цель не облутана
-                    player->loot();return;}
+            }else{//если цели нет или она далеко   
                 if(((float)player->hp()/player->maxHp())<0.8f)//если персонаж продамажен
                     player->heal();
-                Mob* closest=mobs->closestTo(Point {player->x(), player->y()});//находит ближайшего к персонажу моба
-                player->moveTo(closest);//двигается к ближайшему мобу
-                if(player->status()==PStatus::waiting)//если уже у ближайшего моба
-                    keyClick('\t');//табает моба
+                Mob* closest=mobs->closestTo(Point {player->x(), player->y()}, stPos, FARM_RANGE);//находит ближайшего к персонажу моба
+                if(closest){
+                    if(!player->moveTo(closest))//двигается к ближайшему мобу
+                        keyClick('\t');//табает моба
+                }else
+                    player->moveTo(stPos);
             }
         }
     }

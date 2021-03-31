@@ -8,9 +8,9 @@
 
 //Класс внешнего указателя
 
-extern HANDLE g_hProc;//ГЛОБАЛЬНЫЙ хэндлер процесса
-extern uintptr_t g_modBase;//ГЛОБАЛЬНЫЙ адрес модуля
-extern QSettings *g_offsets;//ГЛОБАЛЬНЫЙ ини файл оффсетов
+extern HANDLE g_hProc;//хэндлер процесса
+extern uintptr_t g_modBase;//адрес модуля
+extern QSettings *g_offsets;//ини файл оффсетов
 
 template <class T>//тип данных по указателю
 class ExtPtr
@@ -25,7 +25,7 @@ public:
     T operator*() const{//чтение памяти по указателю
         T value;
         if (!ReadProcessMemory(g_hProc, (BYTE*)m_ptr, &value, sizeof(value), nullptr))//если не может прочитать
-            value = NULL;
+            value = 0;
         return value;
     }
     ExtPtr& operator=(const ExtPtr &extptr){//присваивание
@@ -70,7 +70,6 @@ QString ExtPtr<QString>::operator*() const; //чтение памяти по у�
 template <typename T>
 ExtPtr<T>::~ExtPtr()
 {
-
 }
 
 

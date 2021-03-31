@@ -10,11 +10,9 @@
 #include <QString>
 #include <QCoreApplication>
 
-#include "constants.h"
-
 DWORD getProcId(const wchar_t* procName); //определение ид процесса по имени исполняемого файла
 uintptr_t getModuleBaseAddress(DWORD procId, const wchar_t* modName); //определение базового адреса модуля в процессе
-void getWindowFromProcessID(DWORD ProcessID,HWND &hWnd);//определние хэндлера окна по ид процессу
+HWND getWindowHandle(DWORD procId, const QString &title);//определние хэндлера окна
 bool keyDown(char keyS); //нажатие кнопки
 bool keyUp(char keyS); //отжатие кнопки
 bool keyClick(char keyS);//клик на кнопку

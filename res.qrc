@@ -5,6 +5,7 @@
         <file>mob.png</file>
         <file>deadmob.png</file>
         <file>friendlymob.png</file>
+        <file>point.png</file>
     </qresource>
     <qresource prefix="/settings">
         <file>settings.ini</file>

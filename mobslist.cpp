@@ -43,7 +43,7 @@ void Mobslist::userPrint()
     }
     setWindowTitle("List of mobs: "+QString::number(mobsList.size())+" mobs around");
     for (int i=0;i<mobsList.size() ;i++ ) {
-        QString mobstr=mobsList[i]->name()+" ";
+        QString mobstr=mobsList[i]->id()+" ";
         mobstr+=QString::number(mobsList[i]->addr(),16)+" ";
         mobstr+=QString::number(mobsList[i]->base(),16)+" ";
         mobstr+=mobsList[i]->type()+" ";

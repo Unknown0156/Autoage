@@ -15,13 +15,16 @@ enum PStatus //что делает персонаж
     waiting,
     turning,
     moving,
-    turnandmove,
+    moveandturn,
     fighting,
+    casting,
     healing,
     looting
 };
 
 struct Memory{
+    int count;
+
     float angleDif;
     float angle;
     float cAngleDif;
@@ -34,8 +37,8 @@ struct Memory{
     float cDist;
 
     int cTarHp;
-    int count;
-    bool drainCD;
+
+    int castTime;
 };
 
 class Player: public QObject
@@ -48,8 +51,8 @@ public:
 
     QString nick() const {return *m_nick;}
     int maxHp() const {return *m_maxHp;}
-    int maxMp();//УКАЗАТЕЛИ МАНЫ
-    int mp();//УКАЗАТЕЛИ МАНЫ
+    int maxMp();
+    int mp() const {return *m_mp;}
     float x() const {return *m_x;}
     float y() const {return *m_y;}
     float z() const {return *m_z;}
@@ -61,11 +64,13 @@ public:
 
     float distTo(const Point p);//расстояние до точки
     float distTo(const Mob* mob);//расстояние до моба
-    void moveTo(const Point p, float dist=MOVE_TO_POINT_PRECISION);//движение к точке
-    void moveTo(Mob *mob, float dist=MOVE_TO_MOB_PRECISION);//движение к мобу
+    bool moveTo(const Point p, float dist=MOVE_TO_POINT_PRECISION);//движение к точке
+    bool moveTo(Mob *mob, float dist=MOVE_TO_MOB_PRECISION);//движение к мобу
     void kill();//убить таргет
     void loot();//залутать таргет
     void heal();//похилиться
+    void start();//старт персонажа
+    void stop();//остановка персонажа
 
 signals:
     void statusChanged(const QString &status);//при изменении статуса персонажа
@@ -79,7 +84,9 @@ public slots:
             case PStatus::waiting:emit statusChanged("Player is waiting");break;
             case PStatus::turning:emit statusChanged("Player is turning");break;
             case PStatus::moving:emit statusChanged("Player is moving");break;
+            case PStatus::moveandturn:emit statusChanged("Player is turn and move");break;
             case PStatus::fighting:emit statusChanged("Player is fighting");break;
+            case PStatus::casting:emit statusChanged("Player is casting");break;
             case PStatus::healing:emit statusChanged("Player is healing");break;
             case PStatus::looting:emit statusChanged("Player is looting");break;
             default: emit statusChanged("unknown_status");
@@ -98,16 +105,22 @@ public slots:
             onTurning();break;}
         case PStatus::moving:{//если игрок бежит
             onMoving();break;}
-        case PStatus::turnandmove:{//если игрок бежит и поворачитвается
+        case PStatus::moveandturn:{//если игрок бежит и поворачитвается
             onTurning();onMoving();break;}
         case PStatus::fighting:{//если игрок бьет моба
             onFighting();break;}
+        case PStatus::casting:{//если игрок бьет моба
+            onCasting();break;}
         case PStatus::looting:{//если игрок бьет моба
             onLooting();break;}
         default:{
             break;
         }
         }
+        if(m_arcCD>0)
+            m_arcCD-=TIMER_DELAY;
+        if(m_drainCD>0)
+            m_drainCD-=TIMER_DELAY;
     }
 
 private:
@@ -123,16 +136,23 @@ private:
     ExtPtr<float> m_sin;
     float m_angle;
     PStatus m_status=PStatus::waiting;
+    int m_arcCD=0;
+    int m_drainCD=0;
     Memory m_memory;
     Target *m_target;
     QTimer *check;
 
     float angleTo(const Point p);//угол до точки
-    void turnTo(const Point p, float angleDif=TURN_PRECISION);//поворот к точке
+    bool turnTo(const Point p, float angleDif=TURN_PRECISION);//поворот к точке
+
+    void proceedCD(int t);
+    void wait(int t=0);
+    bool keyClick(char keyS);//клик на кнопку
 
     void onTurning();//во время поворота
     void onMoving();//во время бега
     void onFighting();//во время файта
+    void onCasting();//во время каста
     void onLooting();//во время лута
 };
 
