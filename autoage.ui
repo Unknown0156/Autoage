@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>300</height>
+    <height>250</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="QPushButton" name="start">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>260</x>
       <y>130</y>
       <width>80</width>
       <height>22</height>
@@ -33,7 +33,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>260</x>
       <y>160</y>
       <width>80</width>
       <height>22</height>
@@ -316,9 +316,9 @@
    <widget class="QLabel" name="pStatus">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>160</y>
-      <width>121</width>
+      <x>10</x>
+      <y>130</y>
+      <width>120</width>
       <height>20</height>
      </rect>
     </property>
@@ -334,8 +334,8 @@
    <widget class="QLabel" name="startPos">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>130</y>
+      <x>10</x>
+      <y>160</y>
       <width>241</width>
       <height>20</height>
      </rect>
@@ -353,7 +353,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>240</y>
+      <y>190</y>
       <width>251</width>
       <height>16</height>
      </rect>
@@ -367,6 +367,22 @@
      <string>Mobs around: 0</string>
     </property>
    </widget>
+   <widget class="QDoubleSpinBox" name="farmRange">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>130</y>
+      <width>62</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <double>9999.000000000000000</double>
+    </property>
+    <property name="value">
+     <double>100.000000000000000</double>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -374,7 +390,7 @@
      <x>0</x>
      <y>0</y>
      <width>350</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

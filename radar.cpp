@@ -1,7 +1,7 @@
 #include "radar.h"
 
-Radar::Radar(const Point &stPos, QWidget *parent, Player *player, Target *target, const QVector<Mob*> *mobs) :
-    QWidget(parent), m_player(player), m_target(target), m_mobs(mobs), m_stPos(stPos)
+Radar::Radar(const Point &stPos, const float &farmRange, QWidget *parent, Player *player, Target *target, const QVector<Mob*> *mobs) :
+    QWidget(parent), m_player(player), m_target(target), m_mobs(mobs), m_stPos(stPos), m_farmRange(farmRange)
 {
     setFixedSize(350, 350);
     setStyleSheet("background-color:white;");
@@ -33,7 +33,7 @@ void Radar::paintEvent(QPaintEvent *e){
     //отрисовка стартовой точки и радиуса
     painter.save();
     painter.translate(m_stPos.x-m_player->x(), -(m_stPos.y-m_player->y()));
-    painter.drawEllipse(QPointF(0,0), FARM_RANGE, FARM_RANGE);
+    painter.drawEllipse(QPointF(0,0), m_farmRange, m_farmRange);
     painter.translate(pRect.height()/-2, pRect.width()/-2);
     painter.drawImage(pRect, ptImage);
     painter.restore();

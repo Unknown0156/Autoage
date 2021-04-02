@@ -126,8 +126,12 @@ void Player::onTurning()
 
 bool Player::moveTo(const Point p, float dist)//движение к точке координат
 {
-    if(turnTo(p))//поворот до точки
-        return true;
+    if(turnTo(p)){//поворот до точки
+        while(m_status==PStatus::turning){
+            wait(TIMER_DELAY);
+            onTurning();
+        }
+    }
     float cDist = distTo(p); //текущее расстояние до точки
     if(cDist>dist){
         QString statusStr="Moving to point ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
@@ -145,8 +149,12 @@ bool Player::moveTo(const Point p, float dist)//движение к точке �
 bool Player::moveTo(Mob *mob, float dist)//движение к мобу
 {
     Point p{mob->x(), mob->y()};//точка моба
-    if(turnTo(p))//поворот до моба
-        return true;
+    if(turnTo(p)){//поворот до моба
+        while(m_status==PStatus::turning){
+            wait(TIMER_DELAY);
+            onTurning();
+        }
+    }
     float cDist = distTo(p); //текущее расстояние до моба
     if(cDist>dist){
         QString statusStr="Moving to mob ("+QString::number(p.x)+";"+QString::number(p.y)+")"+", distance=";
@@ -214,11 +222,11 @@ void Player::onFighting()
     if(m_memory.count%2==0){//раз в 0.2 секунды
         if(((float)this->hp()/this->maxHp())>0.8f && m_memory.count==2 && m_arcCD<=0){//открывается с молнии
             keyClick('5');
-            m_arcCD=10000;
+            m_arcCD=8000;
             m_memory.castTime=2500;
             setStatus(PStatus::casting);return;
         }
-        if(((float)this->hp()/this->maxHp())<0.95f && (float)m_target->hp()/m_target->maxHp()>0.3f && m_drainCD<=0){//если персонаж продамажен и дрэйн не на кд
+        if(((float)this->hp()/this->maxHp())<0.85f && (float)m_target->hp()/m_target->maxHp()>0.3f && m_drainCD<=0){//если персонаж продамажен и дрэйн не на кд
             if(moveTo(m_target, MOVE_TO_MOB_PRECISION/2.0f)){
                 return;
             }else{

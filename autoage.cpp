@@ -1,6 +1,7 @@
 #include "autoage.h"
 #include "ui_autoage.h"
 
+#include <QDebug>
 
 Autoage::Autoage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Autoage),
@@ -14,6 +15,7 @@ Autoage::Autoage(QWidget *parent)
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
     stPos={player->x(), player->y()};//инициализация стартовой позиции
+    farmRange=ui->farmRange->value();//радуис фарма из ui
     timerId=startTimer(TIMER_DELAY);//таймер главного окна
 
     connect(player, &Player::statusChanged, ui->pStatus, &QLabel::setText);//статус персонажа в ui
@@ -70,7 +72,7 @@ void Autoage::mobslistSH()//показать\скрыть окно списка 
 void Autoage::radarSH()//показать\скрыть радар
 {
     if (radar==nullptr){
-        radar=new Radar(stPos, this, player, target, &mobs->mobs());
+        radar=new Radar(stPos, farmRange, this, player, target, &mobs->mobs());
         radar->move(0,geometry().height()-statusBar()->height());
     }
     if (ui->radar->isChecked()){
@@ -125,6 +127,7 @@ void Autoage::start()
     ui->start->setDisabled(true);
     ui->stop->setEnabled(true);
     stPos={player->x(), player->y()};
+    farmRange=ui->farmRange->value();//радуис фарма из ui
     player->start();
     bot->start(TIMER_DELAY);
 }

@@ -40,13 +40,13 @@ private slots:
         if(player->status()==PStatus::waiting){//если игрок ничего не делает
             if(target->loot()){//если цель не облутана
                 player->loot();return;}
-            if (target->hp()>0 && target->distTo(stPos)<FARM_RANGE*1.1){//если есть цель и она не далеко
+            if (target->hp()>0 && target->distTo(stPos)<farmRange*1.1){//если есть цель и она не далеко
                 if(!player->moveTo(target))//бег к таргету
                     player->kill();
             }else{//если цели нет или она далеко   
                 if(((float)player->hp()/player->maxHp())<0.8f)//если персонаж продамажен
                     player->heal();
-                Mob* closest=mobs->closestTo(Point {player->x(), player->y()}, stPos, FARM_RANGE);//находит ближайшего к персонажу моба
+                Mob* closest=mobs->closestTo(Point {player->x(), player->y()}, stPos, farmRange);//находит ближайшего к персонажу моба
                 if(closest){
                     if(!player->moveTo(closest))//двигается к ближайшему мобу
                         keyClick('\t');//табает моба
@@ -66,5 +66,6 @@ private:
     Player *player;
     Mobs *mobs;
     Point stPos;
+    float farmRange;
 };
 #endif // AUTOAGE_H
