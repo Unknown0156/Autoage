@@ -12,6 +12,7 @@
 #include "mobs.h"
 #include "radar.h"
 #include "mobslist.h"
+#include "waypoints.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Autoage; }
@@ -28,12 +29,15 @@ public:
     void timerEvent(QTimerEvent *e);
     void closeEvent(QCloseEvent *e);
 
-    void mobslistSH();//показать\скрыть окно списка мобов
     void radarSH();//показать\скрыть окно радара
+    void mobslistSH();//показать\скрыть окно списка мобов
+    void waypointsSH();
 
+    void openFile();
     void userPrint();//вывод данных в ui
     void start();
     void stop();
+    void pointsMove();
 
 private slots:
     void botting(){
@@ -60,11 +64,13 @@ private:
     Ui::Autoage *ui;
     Radar *radar=nullptr;
     Mobslist *mobslist=nullptr;
+    Waypoints *waypointslist=nullptr;
     int timerId=0; //таймер главного окна
     QTimer *bot;
     Target *target;
     Player *player;
     Mobs *mobs;
+    QVector <Point> *waypoints;
     Point stPos;
     float farmRange;
 };

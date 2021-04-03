@@ -1,7 +1,7 @@
 #include "radar.h"
 
-Radar::Radar(const Point &stPos, const float &farmRange, QWidget *parent, Player *player, Target *target, const QVector<Mob*> *mobs) :
-    QWidget(parent), m_player(player), m_target(target), m_mobs(mobs), m_stPos(stPos), m_farmRange(farmRange)
+Radar::Radar(const Point &stPos, const float &farmRange, QWidget *parent, Player *player, Target *target, const QVector<Mob*> *mobs, const QVector <Point> *waypoints) :
+    QWidget(parent), m_player(player), m_target(target), m_mobs(mobs), m_waypoints(waypoints), m_stPos(stPos), m_farmRange(farmRange)
 {
     setFixedSize(350, 350);
     setStyleSheet("background-color:white;");
@@ -30,6 +30,22 @@ void Radar::paintEvent(QPaintEvent *e){
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
     painter.drawLine(0,0,349,0);
     painter.translate(this->width()/2,this->height()/2);//на центр окна
+    //отрисовка вейпоинтов
+    QPainterPath path;
+    for(int i=0; i<m_waypoints->size(); i++){
+        painter.save();
+        Point p=m_waypoints->at(i);
+        painter.translate(p.x-m_player->x(), -(p.y-m_player->y()));
+        painter.translate(pRect.height()/-2, pRect.width()/-2);
+        painter.drawImage(pRect, ptImage);
+        if(i==0){
+            path.moveTo(p.x-m_player->x(), -(p.y-m_player->y()));
+        }else{
+            path.lineTo(p.x-m_player->x(), -(p.y-m_player->y()));
+        }
+        painter.restore();
+    }
+    painter.drawPath(path);
     //отрисовка стартовой точки и радиуса
     painter.save();
     painter.translate(m_stPos.x-m_player->x(), -(m_stPos.y-m_player->y()));

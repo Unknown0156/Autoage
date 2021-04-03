@@ -41,8 +41,8 @@ void Player::proceedCD(int t)
 
 void Player::wait(int t)
 {
-    for(;t>0;t--){
-        Sleep(1);
+    for(;t>=0;t-=20){
+        Sleep(20);
         QCoreApplication::processEvents();
     }
     proceedCD(t);
@@ -191,8 +191,11 @@ void Player::onMoving()
         if(abs(m_memory.cDist-newDist)<0.2f){//при застревании
             keyDown('w');
             wait(getRandomNumber(50,70));
-            Point p{-m_memory.p.x, -m_memory.p.y};
-            if(turnTo(p)){//разворот на 180 градусов
+            float x=*m_x-(m_memory.p.y-*m_y)/distTo(m_memory.p)*10.0f;
+            float y=*m_y+(m_memory.p.x-*m_x)/distTo(m_memory.p)*10.0f;
+            Point p {x,y};
+            m_memory.mob=nullptr;
+            if(moveTo(p)){//разворот на 180 градусов
                 keyClick(' ');//прыжок
                 return;
             }

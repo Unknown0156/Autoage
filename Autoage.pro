@@ -16,7 +16,8 @@ SOURCES += \
     mobs.cpp \
     mobslist.cpp \
     player.cpp \
-    radar.cpp
+    radar.cpp \
+    waypoints.cpp
 
 HEADERS += \
     autoage.h \
@@ -26,11 +27,13 @@ HEADERS += \
     mobs.h \
     mobslist.h \
     player.h \
-    radar.h
+    radar.h \
+    waypoints.h
 
 FORMS += \
     autoage.ui \
-    mobslist.ui
+    mobslist.ui \
+    waypoints.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

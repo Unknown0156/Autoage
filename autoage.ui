@@ -383,6 +383,19 @@
      <double>100.000000000000000</double>
     </property>
    </widget>
+   <widget class="QPushButton" name="pointsMove">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>180</y>
+      <width>80</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Move to points</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -390,13 +403,14 @@
      <x>0</x>
      <y>0</y>
      <width>350</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="openFile"/>
     <addaction name="quit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -405,6 +419,7 @@
     </property>
     <addaction name="radar"/>
     <addaction name="mobslist"/>
+    <addaction name="waypoints"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -429,6 +444,19 @@
    </property>
    <property name="text">
     <string>Radar</string>
+   </property>
+  </action>
+  <action name="waypoints">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Waypoints</string>
+   </property>
+  </action>
+  <action name="openFile">
+   <property name="text">
+    <string>Open</string>
    </property>
   </action>
  </widget>

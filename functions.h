@@ -1,7 +1,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-#include <iostream>
 #include <random>
 
 #include <Windows.h>

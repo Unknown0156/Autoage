@@ -137,8 +137,8 @@ bool keyClick(char keyS)//клик на кнопку
 
 void wait(int t)//ожидание
 {
-    for(;t>0;t--){
-        Sleep(1);
+    for(;t>=0;t-=20){
+        Sleep(20);
         QCoreApplication::processEvents();
     }
 }

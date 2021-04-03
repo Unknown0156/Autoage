@@ -14,6 +14,7 @@ Autoage::Autoage(QWidget *parent)
     ui->pMpBar->setStyleSheet("QProgressBar::chunk{background-color: #2B7ED5;}");//цвет мана бара персонажа
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
+    waypoints=new QVector <Point>;
     stPos={player->x(), player->y()};//инициализация стартовой позиции
     farmRange=ui->farmRange->value();//радуис фарма из ui
     timerId=startTimer(TIMER_DELAY);//таймер главного окна
@@ -21,12 +22,15 @@ Autoage::Autoage(QWidget *parent)
     connect(player, &Player::statusChanged, ui->pStatus, &QLabel::setText);//статус персонажа в ui
     connect(player, &Player::sendStatus, statusBar(), &QStatusBar::showMessage);//сообщения в статус бар
 
+    connect(ui->openFile, &QAction::triggered, this, &Autoage::openFile);
     connect(ui->quit, &QAction::triggered, qApp, &QApplication::quit);
     connect(ui->radar, &QAction::triggered, this, &Autoage::radarSH);
     connect(ui->mobslist, &QAction::triggered, this, &Autoage::mobslistSH);
+    connect(ui->waypoints, &QAction::triggered, this, &Autoage::waypointsSH);
     connect(ui->start, &QPushButton::clicked, this, &Autoage::start);
     connect(ui->stop, &QPushButton::clicked, this, &Autoage::stop);
     connect(bot, &QTimer::timeout, this, &Autoage::botting);
+    connect(ui->pointsMove, &QPushButton::clicked, this, &Autoage::pointsMove);
 }
 
 Autoage::~Autoage()
@@ -36,10 +40,14 @@ Autoage::~Autoage()
         delete mobslist;
     if (radar!=nullptr)
         delete radar;
+    if (waypointslist!=nullptr)
+        delete waypointslist;
     delete bot;
     delete player;
     delete target;
     delete mobs;
+    waypoints->clear();
+    delete waypoints;
 }
 
 void Autoage::timerEvent(QTimerEvent *e)
@@ -54,6 +62,9 @@ void Autoage::closeEvent(QCloseEvent *e){
     Q_UNUSED(e);
     if (mobslist!=nullptr){
         mobslist->close();
+    }
+    if (waypointslist!=nullptr){
+        waypointslist->close();
     }
 }
 
@@ -72,7 +83,7 @@ void Autoage::mobslistSH()//показать\скрыть окно списка 
 void Autoage::radarSH()//показать\скрыть радар
 {
     if (radar==nullptr){
-        radar=new Radar(stPos, farmRange, this, player, target, &mobs->mobs());
+        radar=new Radar(stPos, farmRange, this, player, target, &mobs->mobs(), waypoints);
         radar->move(0,geometry().height()-statusBar()->height());
     }
     if (ui->radar->isChecked()){
@@ -83,6 +94,27 @@ void Autoage::radarSH()//показать\скрыть радар
         delete radar;
         radar=nullptr;
     }
+}
+
+void Autoage::waypointsSH()
+{
+    if (waypointslist==nullptr){
+        waypointslist=new Waypoints(waypoints, nullptr, player);
+        connect(waypointslist, &Waypoints::onClose, ui->waypoints, &QAction::setChecked);
+    }
+    if (ui->waypoints->isChecked())
+        waypointslist->show();
+    else
+        waypointslist->hide();
+}
+
+void Autoage::openFile()
+{
+    if (waypointslist==nullptr){
+        waypointslist=new Waypoints(waypoints, nullptr, player);
+        connect(waypointslist, &Waypoints::onClose, ui->waypoints, &QAction::setChecked);
+    }
+    waypointslist->openPoints();
 }
 
 
@@ -137,6 +169,18 @@ void Autoage::stop()
     ui->stop->setDisabled(true);
     ui->start->setEnabled(true);
     bot->stop();
+    player->stop();
+}
+
+void Autoage::pointsMove()
+{
+    player->start();
+    foreach (Point p, *waypoints) {
+        if(player->moveTo(p)){
+            while(!(player->status()==PStatus::waiting))
+                wait(100);
+        }
+    }
     player->stop();
 }
 
