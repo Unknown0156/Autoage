@@ -26,10 +26,11 @@ private:
     Player *m_player;
     Target *m_target;
     const QVector<Mob*> *m_mobs;
-    const QVector <Point> *m_waypoints;
+    const QVector<Point> *m_waypoints;
     const Point &m_stPos;
     const float &m_farmRange;
     QImage ptImage;
+    QImage eptImage;
     QImage plImage;
     QRect pRect;
     QImage tImage;

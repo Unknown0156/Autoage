@@ -124,24 +124,6 @@ bool keyUp(char keyS) //отжатие кнопки
     }
 }
 
-bool keyClick(char keyS)//клик на кнопку
-{
-    if(keyDown(keyS)){
-        wait(getRandomNumber(50,70));
-        keyUp(keyS);
-        return true;
-    }
-    return false;
-}
-
-
-void wait(int t)//ожидание
-{
-    for(;t>=0;t-=20){
-        Sleep(20);
-        QCoreApplication::processEvents();
-    }
-}
 
 int getRandomNumber(int min, int max) //генератор рандомных чисел (от, до)
 {

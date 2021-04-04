@@ -8,24 +8,26 @@
 #include "constants.h"
 #include "extptr.h"
 
+//Структура точки
 struct Point{
-    float x,y,z=0;
+    float x,y,z;
 };
 
 QDataStream &operator>>(QDataStream &in, Point &p);//чтение точки из потока
 QDataStream &operator<<(QDataStream &out, const Point &p);//запись точки в поток
 
+//Класс моба
 class Mob
 {
 public:
-    Mob(const QString name, int num=0);//имя в файле оффсетов и номер если нужно
+    Mob(const QString id, int num=0);//имя в файле оффсетов и номер если нужно
     ~Mob();
 
     const QString &id() const {return m_base.name();}
     int addr() const {return &m_base;}
     int base() const {return *m_base;}
-    virtual int enemy() const {return *m_enemy;}
-    virtual QString type() const {return *m_type;}
+    int enemy() const {return *m_enemy;}
+    QString type() const {return *m_type;}
     float x() const {return *m_x;}
     float y() const {return *m_y;}
     float z() const {return *m_z;}
@@ -45,16 +47,16 @@ private:
 
 protected:
     ExtPtr<int> m_hp;
-
 };
 
+//Класс таргета
 class Target:public Mob
 {
 public:
     Target();
     ~Target();
 
-    int enemy()=delete;
+    int enemy()const=delete;
     QString type()=delete;
     QString name();
     int maxHp() const {return *m_maxHp;}
@@ -66,6 +68,7 @@ private:
     bool m_loot=false;
 };
 
+//Массив всех мобов
 class Mobs
 {
 public:

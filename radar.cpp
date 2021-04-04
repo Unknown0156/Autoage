@@ -6,6 +6,7 @@ Radar::Radar(const Point &stPos, const float &farmRange, QWidget *parent, Player
     setFixedSize(350, 350);
     setStyleSheet("background-color:white;");
     ptImage.load(":/images/point.png");
+    eptImage.load(":/images/endpoint.png");
     plImage.load(":/images/player.png");
     pRect=ptImage.rect();
     tImage.load(":/images/target.png");
@@ -35,13 +36,16 @@ void Radar::paintEvent(QPaintEvent *e){
     for(int i=0; i<m_waypoints->size(); i++){
         painter.save();
         Point p=m_waypoints->at(i);
-        painter.translate(p.x-m_player->x(), -(p.y-m_player->y()));
+        painter.translate(p.x-m_player->gx(), -(p.y-m_player->gy()));
         painter.translate(pRect.height()/-2, pRect.width()/-2);
-        painter.drawImage(pRect, ptImage);
+        if(i==(m_waypoints->size()-1))
+            painter.drawImage(pRect, eptImage);
+        else
+            painter.drawImage(pRect, ptImage);
         if(i==0){
-            path.moveTo(p.x-m_player->x(), -(p.y-m_player->y()));
+            path.moveTo(p.x-m_player->gx(), -(p.y-m_player->gy()));
         }else{
-            path.lineTo(p.x-m_player->x(), -(p.y-m_player->y()));
+            path.lineTo(p.x-m_player->gx(), -(p.y-m_player->gy()));
         }
         painter.restore();
     }

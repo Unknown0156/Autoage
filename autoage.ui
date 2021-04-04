@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>250</height>
+    <height>255</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
     <property name="geometry">
      <rect>
       <x>260</x>
-      <y>160</y>
+      <y>190</y>
       <width>80</width>
       <height>22</height>
      </rect>
@@ -336,7 +336,7 @@
      <rect>
       <x>10</x>
       <y>160</y>
-      <width>241</width>
+      <width>240</width>
       <height>20</height>
      </rect>
     </property>
@@ -354,13 +354,13 @@
      <rect>
       <x>10</x>
       <y>190</y>
-      <width>251</width>
-      <height>16</height>
+      <width>240</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>9</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -370,30 +370,30 @@
    <widget class="QDoubleSpinBox" name="farmRange">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>180</x>
       <y>130</y>
       <width>62</width>
       <height>22</height>
      </rect>
     </property>
     <property name="maximum">
-     <double>9999.000000000000000</double>
+     <double>999.000000000000000</double>
     </property>
     <property name="value">
      <double>100.000000000000000</double>
     </property>
    </widget>
-   <widget class="QPushButton" name="pointsMove">
+   <widget class="QPushButton" name="wpMove">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>180</y>
+      <x>260</x>
+      <y>160</y>
       <width>80</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Move to points</string>
+     <string>Points move</string>
     </property>
    </widget>
   </widget>

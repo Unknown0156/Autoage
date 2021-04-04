@@ -10,8 +10,8 @@ QDataStream &operator<<(QDataStream &out, const Point &p){//запись точ�
     return out;
 }
 
-Mob::Mob(const QString name, int num): m_base(name+QString::number(num)),
-    m_enemy(&m_base, name+"Enemy"), m_type(&m_base, name+"Type"), m_x(&m_base, name+"X"), m_y(&m_base, name+"Y"), m_z(&m_base, name+"Z"), m_hp(&m_base, name+"HP")
+Mob::Mob(const QString id, int num): m_base(id+QString::number(num)),
+    m_enemy(&m_base, id+"Enemy"), m_type(&m_base, id+"Type"), m_x(&m_base, id+"X"), m_y(&m_base, id+"Y"), m_z(&m_base, id+"Z"), m_hp(&m_base, id+"HP")
 {
 
 }
@@ -117,14 +117,6 @@ Mob *Mobs::closestTo(const Point p, const Point stPos, const int range)//воз�
     }
     return m_closest;
 }
-
-
-
-
-
-
-
-
 
 
 

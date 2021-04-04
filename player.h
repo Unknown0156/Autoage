@@ -59,7 +59,11 @@ public:
     int hp() const {return *m_hp;}
     float cos() const {return *m_cos;}
     float sin() const {return *m_sin;}
+    double gx() const {return *m_gx;}
+    double gy() const {return *m_gy;}
+    double gz() const {return *m_gz;}
     float angle();
+    void setGlobal(bool g){m_gMove=g;}
     PStatus status() const {return m_status;}
 
     float distTo(const Point p);//расстояние до точки
@@ -69,6 +73,7 @@ public:
     void kill();//убить таргет
     void loot();//залутать таргет
     void heal();//похилиться
+    void nextTar();//выбрать следующую цель
     void start();//старт персонажа
     void stop();//остановка персонажа
 
@@ -117,10 +122,7 @@ public slots:
             break;
         }
         }
-        if(m_arcCD>0)
-            m_arcCD-=TIMER_DELAY;
-        if(m_drainCD>0)
-            m_drainCD-=TIMER_DELAY;
+        proceedCD(TIMER_DELAY);
     }
 
 private:
@@ -135,18 +137,24 @@ private:
     ExtPtr<float> m_cos;
     ExtPtr<float> m_sin;
     float m_angle;
+    ExtPtr<double> m_gx;
+    ExtPtr<double> m_gy;
+    ExtPtr<double> m_gz;
     PStatus m_status=PStatus::waiting;
+    bool m_gMove=false;
     int m_arcCD=0;
     int m_drainCD=0;
-    Memory m_memory;
+    int m_healCD=0;
+    Memory m_mem;
     Target *m_target;
-    QTimer *check;
+    QTimer *check=nullptr;
 
     float angleTo(const Point p);//угол до точки
     bool turnTo(const Point p, float angleDif=TURN_PRECISION);//поворот к точке
+    Point unstuckPoint(const Point p);//точка при застревании
 
-    void proceedCD(int t);
-    void wait(int t=0);
+    void proceedCD(int t);//кд
+    void wait(int t=0);//ожидание
     bool keyClick(char keyS);//клик на кнопку
 
     void onTurning();//во время поворота

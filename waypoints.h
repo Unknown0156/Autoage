@@ -18,14 +18,12 @@ class Waypoints : public QWidget
     Q_OBJECT
 
 public:
-    explicit Waypoints(QVector <Point> *waypoints, QWidget *parent = nullptr, const Player *player=nullptr);
+    explicit Waypoints(QWidget *parent = nullptr, const Player *player=nullptr, QVector <Point> *waypoints=nullptr);
     ~Waypoints();
 
     void closeEvent (QCloseEvent *e);
 
-    void savePoints();
-    void openPoints();
-    void userPrint();
+    void printPoints();
 
 signals:
     void onClose(bool check);
@@ -37,6 +35,9 @@ private:
 
     void addPoint(const Point p);
     void addPlayerPoint();
+
+    void savePoints();
+    void openPoints();
 };
 
 #endif // WAYPOINTS_H

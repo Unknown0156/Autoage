@@ -1,11 +1,9 @@
 #include "autoage.h"
 #include "ui_autoage.h"
 
-#include <QDebug>
-
 Autoage::Autoage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::Autoage),
-      bot(new QTimer(this)), target(new Target), player(new Player(target)), mobs(new Mobs)
+      target(new Target), player(new Player(target)), mobs(new Mobs),  waypoints(new QVector <Point>)
 {
     ui->setupUi(this);
     setFixedSize(geometry().width(), geometry().height());//фиксирует размер окна
@@ -14,8 +12,7 @@ Autoage::Autoage(QWidget *parent)
     ui->pMpBar->setStyleSheet("QProgressBar::chunk{background-color: #2B7ED5;}");//цвет мана бара персонажа
     ui->tHpBar->setStyleSheet("QProgressBar::chunk{background-color: #6B9F18;}");//цвет хп бара цели
 
-    waypoints=new QVector <Point>;
-    stPos={player->x(), player->y()};//инициализация стартовой позиции
+    stPos={player->x(), player->y(), player->z()};//инициализация стартовой позиции
     farmRange=ui->farmRange->value();//радуис фарма из ui
     timerId=startTimer(TIMER_DELAY);//таймер главного окна
 
@@ -28,9 +25,8 @@ Autoage::Autoage(QWidget *parent)
     connect(ui->mobslist, &QAction::triggered, this, &Autoage::mobslistSH);
     connect(ui->waypoints, &QAction::triggered, this, &Autoage::waypointsSH);
     connect(ui->start, &QPushButton::clicked, this, &Autoage::start);
+    connect(ui->wpMove, &QPushButton::clicked, this, &Autoage::wpMove);
     connect(ui->stop, &QPushButton::clicked, this, &Autoage::stop);
-    connect(bot, &QTimer::timeout, this, &Autoage::botting);
-    connect(ui->pointsMove, &QPushButton::clicked, this, &Autoage::pointsMove);
 }
 
 Autoage::~Autoage()
@@ -42,12 +38,20 @@ Autoage::~Autoage()
         delete radar;
     if (waypointslist!=nullptr)
         delete waypointslist;
-    delete bot;
-    delete player;
-    delete target;
-    delete mobs;
-    waypoints->clear();
-    delete waypoints;
+    if(bot!=nullptr)
+        delete bot;
+    if(move!=nullptr)
+        delete move;
+    if(player!=nullptr)
+        delete player;
+    if(target!=nullptr)
+        delete target;
+    if(mobs!=nullptr)
+        delete mobs;
+    if(waypoints!=nullptr){
+        waypoints->clear();
+        delete waypoints;
+    }
 }
 
 void Autoage::timerEvent(QTimerEvent *e)
@@ -68,18 +72,6 @@ void Autoage::closeEvent(QCloseEvent *e){
     }
 }
 
-void Autoage::mobslistSH()//показать\скрыть окно списка мобов
-{
-    if (mobslist==nullptr){
-        mobslist=new Mobslist(nullptr, mobs);
-        connect(mobslist, &Mobslist::onClose, ui->mobslist, &QAction::setChecked);
-    }
-    if (ui->mobslist->isChecked())
-        mobslist->show();
-    else
-        mobslist->hide();
-}
-
 void Autoage::radarSH()//показать\скрыть радар
 {
     if (radar==nullptr){
@@ -95,11 +87,21 @@ void Autoage::radarSH()//показать\скрыть радар
         radar=nullptr;
     }
 }
-
+void Autoage::mobslistSH()//показать\скрыть окно списка мобов
+{
+    if (mobslist==nullptr){
+        mobslist=new Mobslist(nullptr, mobs);
+        connect(mobslist, &Mobslist::onClose, ui->mobslist, &QAction::setChecked);
+    }
+    if (ui->mobslist->isChecked())
+        mobslist->show();
+    else
+        mobslist->hide();
+}
 void Autoage::waypointsSH()
 {
     if (waypointslist==nullptr){
-        waypointslist=new Waypoints(waypoints, nullptr, player);
+        waypointslist=new Waypoints(nullptr, player, waypoints);
         connect(waypointslist, &Waypoints::onClose, ui->waypoints, &QAction::setChecked);
     }
     if (ui->waypoints->isChecked())
@@ -108,15 +110,29 @@ void Autoage::waypointsSH()
         waypointslist->hide();
 }
 
-void Autoage::openFile()
+bool Autoage::openFile()
 {
-    if (waypointslist==nullptr){
-        waypointslist=new Waypoints(waypoints, nullptr, player);
-        connect(waypointslist, &Waypoints::onClose, ui->waypoints, &QAction::setChecked);
+    QString filename= QFileDialog::getOpenFileName(this, tr("Open waypoints"), QCoreApplication::applicationDirPath(), tr("Points files(*.pnt)"));
+    QFile pFile(filename);
+    if(pFile.open(QIODevice::ReadOnly)){
+        QDataStream stream(&pFile);
+        waypoints->clear();
+        while(!pFile.atEnd()){
+            Point p;
+            stream>>p.x>>p.y>>p.z;
+            waypoints->push_back(p);
+        }
+        pFile.close();
+        if(waypointslist!=nullptr)
+            waypointslist->printPoints();
+        return true;
+    }else{
+        QMessageBox msgBox;
+        msgBox.setText("Cant open file!");
+        msgBox.exec();
+        return false;
     }
-    waypointslist->openPoints();
 }
-
 
 void Autoage::userPrint()//вывод данных в ui
 {
@@ -155,35 +171,64 @@ void Autoage::userPrint()//вывод данных в ui
 }
 
 void Autoage::start()
-{
+{  
     ui->start->setDisabled(true);
+    ui->wpMove->setDisabled(true);
     ui->stop->setEnabled(true);
-    stPos={player->x(), player->y()};
+    stPos={player->x(), player->y(), player->z()};
     farmRange=ui->farmRange->value();//радуис фарма из ui
+    player->setGlobal(false);
     player->start();
+    if(bot==nullptr){
+        bot=new QTimer(this);
+        connect(bot, &QTimer::timeout, this, &Autoage::botting);
+    }
     bot->start(TIMER_DELAY);
 }
 
-void Autoage::stop()
+void Autoage::wpMove()
 {
-    ui->stop->setDisabled(true);
-    ui->start->setEnabled(true);
-    bot->stop();
-    player->stop();
-}
-
-void Autoage::pointsMove()
-{
+    if(waypoints->size()==0)
+        if(!openFile())
+            return;
+    ui->start->setDisabled(true);
+    ui->wpMove->setDisabled(true);
+    ui->stop->setEnabled(true);
+    stPos={0,0,0};
+    farmRange=0.0f;
+    player->setGlobal(true);
     player->start();
-    foreach (Point p, *waypoints) {
-        if(player->moveTo(p)){
-            while(!(player->status()==PStatus::waiting))
-                wait(100);
+    if(move==nullptr){
+        move=new QTimer(this);
+        connect(move, &QTimer::timeout, this, &Autoage::moving);
+    }
+    if(nextPoint==nullptr){//нахождение ближайшей точки из массива
+        nextPoint=waypoints->begin();
+        foreach(auto &p, *waypoints){
+            if(player->distTo(p)<player->distTo(*nextPoint))
+                nextPoint=&p;
         }
     }
-    player->stop();
+    move->start(TIMER_DELAY);
+
 }
 
-
+void Autoage::stop()
+{ 
+    ui->stop->setDisabled(true);
+    ui->start->setEnabled(true);
+    ui->wpMove->setEnabled(true);
+    if(bot!=nullptr){
+        bot->stop();
+        delete bot;
+        bot=nullptr;
+    }
+    if(move!=nullptr){
+        move->stop();
+        delete move;
+        move=nullptr;
+    }
+    player->stop();  
+}
 
 

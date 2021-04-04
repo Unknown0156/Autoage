@@ -14,8 +14,6 @@ uintptr_t getModuleBaseAddress(DWORD procId, const wchar_t* modName); //опре
 HWND getWindowHandle(DWORD procId, const QString &title);//определние хэндлера окна
 bool keyDown(char keyS); //нажатие кнопки
 bool keyUp(char keyS); //отжатие кнопки
-bool keyClick(char keyS);//клик на кнопку
-void wait(int t=0);//ожидание
 int getRandomNumber(int min = INT16_MIN, int max = INT16_MAX); //генератор рандомных чисел (от, до)
 
 #endif // FUNCTIONS_H

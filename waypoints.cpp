@@ -1,12 +1,14 @@
 #include "waypoints.h"
 #include "ui_waypoints.h"
 
-Waypoints::Waypoints(QVector <Point> *waypoints, QWidget *parent, const Player *player) :
+Waypoints::Waypoints(QWidget *parent, const Player *player, QVector <Point> *waypoints) :
     QWidget(parent),
     ui(new Ui::Waypoints), m_player(player), m_waypoints(waypoints)
 {
     ui->setupUi(this);
     setWindowTitle("Waypoints");
+    if(m_waypoints->size()!=0)
+        printPoints();
     connect(ui->pointAdd, &QPushButton::clicked,this, &Waypoints::addPlayerPoint);
     connect(ui->savePoints, &QPushButton::clicked, this, &Waypoints::savePoints);
     connect(ui->openPoints, &QPushButton::clicked, this, &Waypoints::openPoints);
@@ -55,7 +57,7 @@ void Waypoints::openPoints()
             m_waypoints->push_back(p);
         }
         pFile.close();
-        userPrint();
+        printPoints();
     }else{
         QMessageBox msgBox;
         msgBox.setText("Cant open file!");
@@ -63,7 +65,7 @@ void Waypoints::openPoints()
     }
 }
 
-void Waypoints::userPrint()
+void Waypoints::printPoints()
 {
     ui->pointsList->clear();
     foreach(Point p, *m_waypoints)
@@ -82,6 +84,6 @@ void Waypoints::addPoint(const Point p)
 
 void Waypoints::addPlayerPoint()
 {
-    Point p{m_player->x(), m_player->y(), m_player->z()};
+    Point p{(float)m_player->gx(), (float)m_player->gy(), (float)m_player->gz()};
     addPoint(p);
 }

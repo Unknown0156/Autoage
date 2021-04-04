@@ -31,13 +31,13 @@ public:
 
     void radarSH();//показать\скрыть окно радара
     void mobslistSH();//показать\скрыть окно списка мобов
-    void waypointsSH();
+    void waypointsSH();//показать\скрыть окно точек движения
 
-    void openFile();
+    bool openFile();//открыть файл точек движения
     void userPrint();//вывод данных в ui
     void start();
+    void wpMove();
     void stop();
-    void pointsMove();
 
 private slots:
     void botting(){
@@ -53,10 +53,22 @@ private slots:
                 Mob* closest=mobs->closestTo(Point {player->x(), player->y()}, stPos, farmRange);//находит ближайшего к персонажу моба
                 if(closest){
                     if(!player->moveTo(closest))//двигается к ближайшему мобу
-                        keyClick('\t');//табает моба
+                        player->nextTar();//табает моба
                 }else
-                    player->moveTo(stPos);
+                    player->moveTo(stPos);//двигается к стартовой точке
             }
+        }
+    }
+
+    void moving(){
+        if(nextPoint==waypoints->end()){
+            stop();
+            nextPoint=nullptr;
+            return;
+        }
+        if(player->status()==PStatus::waiting){
+            if(!player->moveTo(*nextPoint))
+                nextPoint++;
         }
     }
 
@@ -66,12 +78,13 @@ private:
     Mobslist *mobslist=nullptr;
     Waypoints *waypointslist=nullptr;
     int timerId=0; //таймер главного окна
-    QTimer *bot;
-    Target *target;
-    Player *player;
-    Mobs *mobs;
-    QVector <Point> *waypoints;
+    QTimer *bot=nullptr, *move=nullptr;
+    Target *target=nullptr;
+    Player *player=nullptr;
+    Mobs *mobs=nullptr;
     Point stPos;
     float farmRange;
+    QVector <Point> *waypoints=nullptr;
+    QVector <Point>::const_iterator nextPoint=nullptr;
 };
 #endif // AUTOAGE_H
