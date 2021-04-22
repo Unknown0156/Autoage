@@ -10,6 +10,7 @@ Waypoints::Waypoints(QWidget *parent, const Player *player, QVector <Point> *way
     if(m_waypoints->size()!=0)
         printPoints();
     connect(ui->pointAdd, &QPushButton::clicked,this, &Waypoints::addPlayerPoint);
+    connect(ui->pointDelete, &QPushButton::clicked,this, &Waypoints::deletePoint);
     connect(ui->savePoints, &QPushButton::clicked, this, &Waypoints::savePoints);
     connect(ui->openPoints, &QPushButton::clicked, this, &Waypoints::openPoints);
 }
@@ -86,4 +87,12 @@ void Waypoints::addPlayerPoint()
 {
     Point p{(float)m_player->gx(), (float)m_player->gy(), (float)m_player->gz()};
     addPoint(p);
+}
+
+void Waypoints::deletePoint()
+{
+    int curRow=ui->pointsList->currentIndex().row();
+    ui->pointsList->model()->removeRow(curRow);
+    if(m_waypoints->size()>0)
+        m_waypoints->remove(curRow);
 }

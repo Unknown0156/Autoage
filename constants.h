@@ -9,6 +9,6 @@ const float MOVE_TO_POINT_PRECISION = 2.0f; //точность движения 
 const float MOVE_TO_MOB_PRECISION = 20.0f; //точность движения к таргету
 
 const int NUMBER_OF_MOBS = 3+9+27+27*3;//колличество указателей на мобов
-const int MOB_BASE = 969638352; //значение vtable моба
+const int MOB_BASE = 969638368; //значение vtable моба
 
 

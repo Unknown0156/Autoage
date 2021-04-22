@@ -35,6 +35,7 @@ private:
 
     void addPoint(const Point p);
     void addPlayerPoint();
+    void deletePoint ();
 
     void savePoints();
     void openPoints();
