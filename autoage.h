@@ -32,7 +32,6 @@ public:
     void radarSH();//показать\скрыть окно радара
     void mobslistSH();//показать\скрыть окно списка мобов
     void waypointsSH();//показать\скрыть окно точек движения
-
     bool openFile();//открыть файл точек движения
     void userPrint();//вывод данных в ui
     void start();
